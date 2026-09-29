@@ -1,2 +1,8 @@
 [phases.setup]
-nixPkgs = ["file"]
+nixPkgs = ["python312", "python312Packages.pip", "file"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "gunicorn run:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
