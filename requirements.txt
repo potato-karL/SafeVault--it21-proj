@@ -20,4 +20,5 @@ openpyxl==3.1.5
 reportlab==4.2.5
 pytz==2024.2
 psycopg2-binary==2.9.10
+psycopg[binary]==3.2.3
 gunicorn==22.0.0
