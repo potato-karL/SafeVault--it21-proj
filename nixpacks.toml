@@ -1,5 +1,5 @@
 [phases.setup]
-nixPkgs = ["python312", "python312Packages.pip", "file"]
+nixPkgs = ["python312", "python312Packages.pip", "libmagic"]
 
 [phases.install]
 cmds = ["python3.12 -m venv /opt/venv && . /opt/venv/bin/activate && pip install -r requirements.txt"]
