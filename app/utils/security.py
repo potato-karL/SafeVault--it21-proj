@@ -1,7 +1,7 @@
 import os
 import uuid
 
-import magic
+import filetype
 from flask import current_app
 
 
@@ -36,21 +36,24 @@ def allowed_file(filename: str) -> bool:
 
 
 def content_matches_extension(file_bytes: bytes, filename: str) -> bool:
-    """Sniff the actual file content with libmagic and check it's plausible
-    for the claimed extension. Blocks the "malware.exe renamed to
-    report.txt" trick that an extension-only check can't catch.
+    """Sniff the actual file content and check it's plausible for the claimed
+    extension. Blocks the "malware.exe renamed to report.txt" trick.
 
-    Deliberately lenient (prefix match, not exact) since MIME detection for
-    things like docx/xlsx varies by libmagic version. This is a second
-    layer on top of allowed_file(), not a replacement for it.
+    Uses the pure-Python `filetype` library (no system libmagic needed).
     """
     ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
     expected_prefixes = _EXPECTED_MIME_PREFIXES.get(ext)
     if not expected_prefixes:
-        # No mapping for this extension — fall back to the extension check only.
         return True
 
-    detected_mime = magic.from_buffer(file_bytes, mime=True)
+    kind = filetype.guess(file_bytes)
+    if kind is None:
+        # filetype couldn't detect — allow text files through since they
+        # have no magic bytes (filetype only detects binary formats)
+        text_exts = {"txt", "log", "csv"}
+        return ext in text_exts
+
+    detected_mime = kind.mime
     return any(detected_mime.startswith(prefix) for prefix in expected_prefixes)
 
 
