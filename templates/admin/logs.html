@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Activity Logs - SafeVault Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none text-warning"><svg class="me-1" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0V4zm0 3h16v5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V7zm3 2a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H3zm4 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1H7zm4 0a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1h-2z"/></svg> Admin</a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Security Audit Logs</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 text-light d-flex align-items-center gap-2">
+            <svg class="text-warning" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M10 0a1.5 1.5 0 0 1 1.5 1.5v1h.5A1.5 1.5 0 0 1 13.5 4v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 13V4a1.5 1.5 0 0 1 1.5-1.5h.5v-1A1.5 1.5 0 0 1 5.5 0h4zm0 1H5.5a.5.5 0 0 0-.5.5v1h6v-1a.5.5 0 0 0-.5-.5zM4 3.5H3.5a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H12v1H4v-1zM5 7a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5A.5.5 0 0 1 5 7zm0 2.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5z"/></svg> Audit &amp; Event Logs
+        </h3>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-secondary rounded-pill px-3 d-flex align-items-center gap-1">
+        <svg class="me-1" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg> Back to Dashboard
+    </a>
+</div>
+
+<!-- Filters Bar -->
+<div class="glass-card p-3 mb-4">
+    <form method="GET" action="{{ url_for('admin.logs') }}" id="logsFilterForm">
+        <div class="d-flex flex-wrap align-items-end gap-3">
+            <div class="flex-fill" style="min-width: 160px;">
+                <label class="form-label text-muted small text-uppercase mb-1 fw-semibold d-flex align-items-center gap-1">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/></svg>
+                    Filter by Action
+                </label>
+                <select name="action" id="actionFilter" class="form-select form-select-sm">
+                    <option value="">All Actions</option>
+                    {% for a in ["login", "logout", "register", "upload", "encrypt", "decrypt", "download", "delete", "preview"] %}
+                    <option value="{{ a }}" {{ "selected" if action_filter == a }}>{{ a | capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-fill" style="min-width: 160px;">
+                <label class="form-label text-muted small text-uppercase mb-1 fw-semibold d-flex align-items-center gap-1">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/></svg>
+                    Filter by Status
+                </label>
+                <select name="status" id="statusFilter" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="success" {{ "selected" if status_filter == "success" }}>Success</option>
+                    <option value="fail" {{ "selected" if status_filter == "fail" }}>Fail</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-sm btn-primary rounded-pill d-flex align-items-center gap-1 px-3">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5v-2z"/></svg>
+                    Apply Filter
+                </button>
+                {% if action_filter or status_filter %}
+                <a href="{{ url_for('admin.logs') }}" class="btn btn-sm btn-outline-warning rounded-pill d-flex align-items-center gap-1 px-3" title="Clear all filters">
+                    <svg width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+                    Reset
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Logs Table Container -->
+<div class="glass-card p-4">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle">
+            <thead>
+                <tr class="text-muted small text-uppercase border-bottom border-secondary border-opacity-25">
+                    <th>Timestamp (UTC)</th>
+                    <th>User ID</th>
+                    <th>Action</th>
+                    <th>Status</th>
+                    <th>IP Address</th>
+                    <th>Detail</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in pagination.items %}
+                <tr>
+                    <td class="font-mono small text-muted">{{ log.timestamp.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+                    <td>
+                        {% if log.user_id %}
+                        <span class="badge bg-secondary bg-opacity-25 text-info font-mono border border-secondary border-opacity-25">
+                            <svg class="me-1" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.029 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>User #{{ log.user_id }}
+                        </span>
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge bg-dark border border-secondary text-light font-mono px-2 py-1">
+                            {% if log.action == 'login' %}<svg class="me-1 text-info" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z"/><path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>{% endif %}
+                            {% if log.action == 'logout' %}<svg class="me-1 text-secondary" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>{% endif %}
+                            {% if log.action == 'upload' %}<svg class="me-1 text-primary" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C1.983 6.801 1 7.954 1 9.318 1 10.824 2.243 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.187 4.78 10.312 3 8 3c-2.14 0-3.796 1.488-3.941 1.1z"/><path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/></svg>{% endif %}
+                            {% if log.action == 'encrypt' %}<svg class="me-1 text-warning" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>{% endif %}
+                            {% if log.action == 'decrypt' %}<svg class="me-1 text-success" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>{% endif %}
+                            {% if log.action == 'preview' %}<svg class="me-1 text-info" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>{% endif %}
+                            {% if log.action == 'register' %}<svg class="me-1 text-success" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.029 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>{% endif %}
+                            {% if log.action == 'delete' %}<svg class="me-1 text-danger" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zm3 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zm3 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5z"/></svg>{% endif %}
+                            {% if log.action == 'download' %}<svg class="me-1 text-primary" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>{% endif %}
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if log.status == 'success' %}
+                        <span class="badge bg-success bg-opacity-25 text-success border border-success-subtle rounded-pill px-3">
+                            <svg class="me-1" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Success
+                        </span>
+                        {% else %}
+                        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger-subtle rounded-pill px-3">
+                            <svg class="me-1" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg> Failed
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="font-mono small text-secondary">{{ log.ip_address or "Localhost" }}</td>
+                    <td class="text-muted small">{{ log.detail or "" }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center text-muted p-4">No matching activity log entries found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if pagination.pages > 1 %}
+    <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-3">
+        <div class="text-muted small">
+            Showing <strong class="text-light">{{ ((pagination.page - 1) * 10) + 1 }}</strong> 
+            to <strong class="text-light">{{ [pagination.page * 10, pagination.total] | min }}</strong> 
+            of <strong class="text-light">{{ pagination.total }}</strong> entries
+        </div>
+        
+        <nav aria-label="Audit logs pagination">
+            <ul class="pagination pagination-sm mb-0">
+                <!-- Previous Button -->
+                <li class="page-item {{ 'disabled' if not pagination.has_prev }}">
+                    {% if pagination.has_prev %}
+                    <a class="page-link bg-dark border-secondary text-light" href="{{ url_for('admin.logs', page=pagination.prev_num, action=action_filter, status=status_filter) }}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                    {% else %}
+                    <span class="page-link bg-dark border-secondary text-secondary" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </span>
+                    {% endif %}
+                </li>
+
+                <!-- Page Numbers -->
+                {% set start_page = [1, pagination.page - 2] | max %}
+                {% set end_page = [pagination.pages, pagination.page + 2] | min %}
+                
+                {% if start_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link bg-dark border-secondary text-light" href="{{ url_for('admin.logs', page=1, action=action_filter, status=status_filter) }}">1</a>
+                </li>
+                {% if start_page > 2 %}
+                <li class="page-item disabled">
+                    <span class="page-link bg-dark border-secondary text-secondary">...</span>
+                </li>
+                {% endif %}
+                {% endif %}
+
+                {% for p in range(start_page, end_page + 1) %}
+                <li class="page-item {{ 'active' if p == pagination.page }}">
+                    <a class="page-link {{ 'bg-primary border-primary' if p == pagination.page else 'bg-dark border-secondary' }} text-light" 
+                       href="{{ url_for('admin.logs', page=p, action=action_filter, status=status_filter) }}">
+                        {{ p }}
+                    </a>
+                </li>
+                {% endfor %}
+
+                {% if end_page < pagination.pages %}
+                {% if end_page < pagination.pages - 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link bg-dark border-secondary text-secondary">...</span>
+                </li>
+                {% endif %}
+                <li class="page-item">
+                    <a class="page-link bg-dark border-secondary text-light" href="{{ url_for('admin.logs', page=pagination.pages, action=action_filter, status=status_filter) }}">{{ pagination.pages }}</a>
+                </li>
+                {% endif %}
+
+                <!-- Next Button -->
+                <li class="page-item {{ 'disabled' if not pagination.has_next }}">
+                    {% if pagination.has_next %}
+                    <a class="page-link bg-dark border-secondary text-light" href="{{ url_for('admin.logs', page=pagination.next_num, action=action_filter, status=status_filter) }}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                    {% else %}
+                    <span class="page-link bg-dark border-secondary text-secondary" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </span>
+                    {% endif %}
+                </li>
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

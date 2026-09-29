@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Two-Factor Verification - SafeVault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4 p-md-5 text-center">
+            <div class="mb-4">
+                <div class="d-inline-flex p-3 bg-primary bg-opacity-15 text-primary rounded-circle fs-2 mb-3">
+                    <svg class="svg-icon" style="width:32px;height:32px;" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM11.5 6.5l-4 4-2-2 1-1 1 1 3-3 1 1z"/></svg>
+                </div>
+                <h3 class="fw-bold mb-1 gradient-text-primary">Two-Factor Authentication</h3>
+                <p class="text-muted small mb-0" id="verifySubtitle">Open your authenticator app to retrieve your 6-digit code.</p>
+            </div>
+
+            <!-- Standard TOTP Form -->
+            <form method="POST" action="{{ url_for('auth.verify_2fa') }}" novalidate id="totpVerifyForm">
+                {{ form.hidden_tag() }}
+                <div class="mb-4">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text"><svg class="svg-icon" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/><path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></span>
+                        {{ form.code(class="form-control form-control-lg text-center font-mono fs-2 fw-bold" + (" is-invalid" if form.code.errors else ""), autofocus=true, maxlength="6", inputmode="numeric", autocomplete="one-time-code", placeholder="000000", style="letter-spacing: 0.3em;") }}
+                    </div>
+                    {% for error in form.code.errors %}<div class="invalid-feedback d-block mt-2">{{ error }}</div>{% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-semibold shadow-sm mb-3">
+                    <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Verify &amp; Unlock Vault
+                </button>
+            </form>
+
+            <!-- Backup Code Form (Toggled) -->
+            <form method="POST" action="{{ url_for('auth.verify_backup_code') }}" novalidate id="backupVerifyForm" style="display:none;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-4">
+                    <label class="form-label text-light small fw-medium mb-1">Enter Single-Use Backup Recovery Code</label>
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text"><svg class="svg-icon text-warning" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg></span>
+                        <input type="text" name="backup_code" class="form-control form-control-lg text-center font-mono fs-4 fw-bold text-uppercase" placeholder="XXXX-XXXX" maxlength="12" autofocus>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-warning btn-lg w-100 rounded-pill fw-semibold shadow-sm mb-3">
+                    <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg> Unlock With Backup Code
+                </button>
+            </form>
+
+            <div class="mb-3">
+                <button type="button" class="btn btn-link btn-sm text-info text-decoration-none" id="toggleBackupBtn" onclick="toggleBackupMode()">
+                    <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg> Lost your authenticator app? Use a backup code
+                </button>
+            </div>
+
+            <div class="pt-3 border-top border-secondary border-opacity-25 text-center">
+                <a href="{{ url_for('auth.login') }}" class="text-secondary text-decoration-none small fw-semibold">
+                    <svg class="svg-icon me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>Back to Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let backupMode = false;
+function toggleBackupMode() {
+    backupMode = !backupMode;
+    const totpForm = document.getElementById('totpVerifyForm');
+    const backupForm = document.getElementById('backupVerifyForm');
+    const toggleBtn = document.getElementById('toggleBackupBtn');
+    const subtitle = document.getElementById('verifySubtitle');
+
+    if (backupMode) {
+        totpForm.style.display = 'none';
+        backupForm.style.display = 'block';
+        subtitle.textContent = 'Enter one of your 8-character single-use backup recovery codes.';
+        toggleBtn.innerHTML = '<svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/></svg> Use 6-digit Authenticator app code instead';
+    } else {
+        totpForm.style.display = 'block';
+        backupForm.style.display = 'none';
+        subtitle.textContent = 'Open your authenticator app to retrieve your 6-digit code.';
+        toggleBtn.innerHTML = '<svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg> Lost your authenticator app? Use a backup code';
+    }
+}
+</script>
+{% endblock %}

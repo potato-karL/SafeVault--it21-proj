@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Encrypted Raw Preview - {{ file.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('files.dashboard') }}" class="text-decoration-none text-info d-inline-flex align-items-center gap-1">
+                    <svg class="svg-icon" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zm8 0A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm-8 8A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm8 0A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3z"/></svg> Dashboard
+                </a></li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Raw Ciphertext Inspector</li>
+            </ol>
+        </nav>
+        <h3 class="fw-bold mb-0 d-flex align-items-center gap-2">
+            <svg class="svg-icon text-warning" style="width:24px;height:24px;" viewBox="0 0 16 16"><path d="M7 5.5a1.5 1.5 0 0 1 3 0V7h.5A1.5 1.5 0 0 1 12 8.5v3a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 11.5v-3A1.5 1.5 0 0 1 5.5 7H6V5.5zm1.5-1a.5.5 0 0 0-.5.5V7h1V4.5a.5.5 0 0 0-.5-.5z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
+            <span class="text-light">{{ file.original_filename }}</span>
+        </h3>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('files.decrypt', file_id=file.id) }}" class="btn btn-primary d-flex align-items-center gap-1 rounded-pill shadow-sm">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg> Decrypt &amp; Download
+        </a>
+        <a href="{{ url_for('files.dashboard') }}" class="btn btn-outline-secondary d-flex align-items-center gap-1 rounded-pill">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg> Back
+        </a>
+    </div>
+</div>
+
+<!-- Security Guarantee Banner -->
+<div class="glass-card p-3 mb-4 border-start border-warning border-4">
+    <div class="d-flex align-items-start gap-3">
+        <div class="p-2 bg-warning bg-opacity-10 text-warning rounded-3">
+            <svg class="svg-icon" style="width:28px;height:28px;" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM11.5 6.5l-4 4-2-2 1-1 1 1 3-3 1 1z"/></svg>
+        </div>
+        <div>
+            <h6 class="fw-bold mb-1 text-warning">Zero-Knowledge Ciphertext Inspection</h6>
+            <p class="small text-secondary mb-0">
+                You are inspecting the <strong>raw, unreadable encrypted data payload</strong> stored at rest on disk. 
+                Without your master decryption key, the plaintext cannot be reconstructed or previewed.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Cryptographic Breakdown Card -->
+    <div class="col-lg-5">
+        <div class="glass-card p-4 h-100">
+            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2 text-info">
+                <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M5 0a.5.5 0 0 1 .5.5V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2h1V.5a.5.5 0 0 1 1 0V2A2.5 2.5 0 0 1 14 4.5h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14v1h1.5a.5.5 0 0 1 0 1H14A2.5 2.5 0 0 1 11.5 14v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14h-1v1.5a.5.5 0 0 1-1 0V14A2.5 2.5 0 0 1 2 11.5H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2v-1H.5a.5.5 0 0 1 0-1H2A2.5 2.5 0 0 1 4.5 2V.5A.5.5 0 0 1 5 0zm-.5 3A1.5 1.5 0 0 0 3 4.5v7A1.5 1.5 0 0 0 4.5 13h7a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 11.5 3h-7zM5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3zM6.5 6a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg> Cryptographic Envelope
+            </h5>
+            
+            <div class="mb-3">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">Cipher Primitive</label>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-primary bg-opacity-25 text-primary border border-primary-subtle px-3 py-2 rounded-pill font-mono">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>AES-256-GCM
+                    </span>
+                    <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary px-3 py-2 rounded-pill font-mono">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>390k PBKDF2 Iterations
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">Cryptographic Salt (16 Bytes Hex)</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control font-mono" value="{{ file.salt }}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText('{{ file.salt }}'); showToast('Salt copied to clipboard!');" type="button">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M10 1.5v1h1.5A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 13V4a1.5 1.5 0 0 1 1.5-1.5H5v-1a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5zM9.5 2h-3v1h3V2z"/></svg>Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">Initialization Vector / Nonce (12 Bytes Hex)</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control font-mono" value="{{ file.iv }}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText('{{ file.iv }}'); showToast('IV Nonce copied to clipboard!');" type="button">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M10 1.5v1h1.5A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 13V4a1.5 1.5 0 0 1 1.5-1.5H5v-1a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5zM9.5 2h-3v1h3V2z"/></svg>Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">Plaintext SHA-256 Hash (Pre-Encryption)</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control font-mono text-truncate" value="{{ file.file_hash }}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText('{{ file.file_hash }}'); showToast('File hash copied!');" type="button">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M10 1.5v1h1.5A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 13V4a1.5 1.5 0 0 1 1.5-1.5H5v-1a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5zM9.5 2h-3v1h3V2z"/></svg>Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">At-Rest Ciphertext SHA-256 Hash</label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control font-mono text-truncate" value="{{ file.encrypted_hash }}" readonly>
+                    <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText('{{ file.encrypted_hash }}'); showToast('Ciphertext hash copied!');" type="button">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M10 1.5v1h1.5A1.5 1.5 0 0 1 13 4v9a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 2 13V4a1.5 1.5 0 0 1 1.5-1.5H5v-1a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5zM9.5 2h-3v1h3V2z"/></svg>Copy
+                    </button>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between pt-2 border-top border-secondary border-opacity-25 text-muted small">
+                <span>Payload Size: <strong>{{ (total_ciphertext_size / 1024) | round(2) }} KB</strong> ({{ total_ciphertext_size }} bytes)</span>
+                <span>Uploaded: <strong>{{ file.uploaded_at.strftime("%Y-%m-%d %H:%M") }} UTC</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Hex Dump & Base64 Payload Inspector -->
+    <div class="col-lg-7">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 d-flex align-items-center gap-2 text-success">
+                    <svg class="svg-icon text-success" viewBox="0 0 16 16"><path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm2-1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2z"/><path d="M8.5 4.5a.5.5 0 0 0-1 0v3.793L6.354 7.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 8.293V4.5z"/></svg> Ciphertext Hex Inspector
+                </h5>
+                <span class="badge bg-dark border border-secondary text-muted font-mono fs-xs">Offset &bull; Hex Bytes &bull; ASCII</span>
+            </div>
+
+            <div class="hex-dump-container mb-3">
+                {% for line in hex_dump %}
+                <div class="hex-dump-line">
+                    <span class="hex-offset">{{ line.offset }}</span>
+                    <span class="hex-bytes">{{ line.hex }}</span>
+                    <span class="hex-ascii">{{ line.ascii }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label text-muted small text-uppercase fw-semibold mb-1">Base64 Encrypted Stream Snippet</label>
+                <textarea class="form-control font-mono text-secondary fs-xs" rows="3" readonly>{{ base64_snippet }}...</textarea>
+            </div>
+            <div class="form-text text-muted fs-xs d-flex align-items-center gap-1">
+                <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg> Showing first 1024 bytes of high-entropy encrypted ciphertext.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

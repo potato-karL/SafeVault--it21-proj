@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a60" />
+      <stop offset="50%" stop-color="#0f1d33" />
+      <stop offset="100%" stop-color="#080e1a" />
+    </linearGradient>
+    <linearGradient id="shieldBorderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="docPadlockGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Left Side Pixelated Cipher Particles -->
+  <g class="cipher-particles" fill="#38bdf8">
+    <rect x="35" y="145" width="16" height="16" rx="2" opacity="0.85" />
+    <rect x="58" y="125" width="14" height="14" rx="2" opacity="0.9" fill="#0284c7" />
+    <rect x="79" y="150" width="18" height="18" rx="2" opacity="0.95" />
+    <rect x="42" y="175" width="15" height="15" rx="2" opacity="0.75" fill="#1d4ed8" />
+    <rect x="65" y="195" width="16" height="16" rx="2" opacity="0.9" />
+    <rect x="88" y="180" width="14" height="14" rx="2" opacity="0.8" fill="#0284c7" />
+    <rect x="30" y="220" width="16" height="16" rx="2" opacity="0.8" />
+    <rect x="52" y="240" width="15" height="15" rx="2" opacity="0.95" fill="#38bdf8" />
+    <rect x="75" y="225" width="17" height="17" rx="2" opacity="0.85" fill="#1d4ed8" />
+    <rect x="98" y="250" width="14" height="14" rx="2" opacity="0.9" />
+    <rect x="45" y="275" width="15" height="15" rx="2" opacity="0.7" fill="#0284c7" />
+    <rect x="68" y="290" width="16" height="16" rx="2" opacity="0.9" />
+    <rect x="90" y="280" width="14" height="14" rx="2" opacity="0.8" fill="#38bdf8" />
+    <rect x="40" y="320" width="16" height="16" rx="2" opacity="0.75" fill="#1d4ed8" />
+    <rect x="62" y="335" width="15" height="15" rx="2" opacity="0.85" fill="#0284c7" />
+    <rect x="85" y="325" width="14" height="14" rx="2" opacity="0.6" />
+  </g>
+
+  <!-- Main Outer Shield -->
+  <path d="M 250 40 C 340 40 400 65 400 65 C 400 240 330 380 250 440 C 170 380 100 240 100 65 C 100 65 160 40 250 40 Z"
+        fill="url(#shieldGrad)" stroke="url(#shieldBorderGrad)" stroke-width="14" stroke-linejoin="round" />
+
+  <!-- Shield Inner Contour Highlight -->
+  <path d="M 250 56 C 328 56 382 78 382 78 C 382 232 320 360 250 416 C 180 360 118 232 118 78 C 118 78 172 56 250 56 Z"
+        fill="none" stroke="#ffffff" stroke-width="3" opacity="0.25" />
+
+  <!-- Central Padlock in Shield -->
+  <!-- Lock Shackle -->
+  <path d="M 200 210 V 160 C 200 128 222 105 250 105 C 278 105 300 128 300 160 V 210"
+        fill="none" stroke="#ffffff" stroke-width="26" stroke-linecap="round" />
+  <!-- Lock Body -->
+  <rect x="175" y="200" width="150" height="135" rx="20" fill="#ffffff" />
+  <!-- Keyhole -->
+  <circle cx="250" cy="255" r="14" fill="#0f1d33" />
+  <path d="M 243 255 L 257 255 L 261 295 L 239 295 Z" fill="#0f1d33" />
+
+  <!-- Lower Right Document Overlay -->
+  <g class="document-badge" transform="translate(290, 230)">
+    <!-- Document Body -->
+    <path d="M 10 0 L 100 0 L 140 40 L 140 190 C 140 200 132 208 122 208 L 10 208 C 0 208 -8 200 -8 190 L -8 18 C -8 8 0 0 10 0 Z"
+          fill="#ffffff" stroke="#0f1d33" stroke-width="8" stroke-linejoin="round" />
+    <!-- Folded Corner -->
+    <path d="M 100 0 L 100 40 L 140 40 Z" fill="#e2e8f0" stroke="#0f1d33" stroke-width="6" />
+
+    <!-- Text Lines -->
+    <line x1="20" y1="65" x2="110" y2="65" stroke="#0284c7" stroke-width="8" stroke-linecap="round" />
+    <line x1="20" y1="92" x2="110" y2="92" stroke="#0284c7" stroke-width="8" stroke-linecap="round" />
+    <line x1="20" y1="119" x2="80" y2="119" stroke="#0284c7" stroke-width="8" stroke-linecap="round" />
+
+    <!-- Document Small Padlock -->
+    <g transform="translate(60, 130)">
+      <!-- Small Shackle -->
+      <path d="M 15 15 V 6 C 15 -2 23 -8 32 -8 C 41 -8 49 -2 49 6 V 15"
+            fill="none" stroke="url(#docPadlockGrad)" stroke-width="8" stroke-linecap="round" />
+      <!-- Small Body -->
+      <rect x="6" y="14" width="52" height="42" rx="8" fill="url(#docPadlockGrad)" />
+      <!-- Small Keyhole -->
+      <circle cx="32" cy="30" r="4.5" fill="#ffffff" />
+      <polygon points="30,30 34,30 35,42 29,42" fill="#ffffff" />
+    </g>
+  </g>
+</svg>

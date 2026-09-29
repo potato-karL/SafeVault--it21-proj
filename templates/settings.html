@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% block title %}Security & Settings - SafeVault{% endblock %}
+{% block page_title %}Security & Preferences{% endblock %}
+
+{% block content %}
+<div class="row g-4 justify-content-center">
+    <!-- Main Settings Column -->
+    <div class="col-xl-9 col-lg-10">
+
+        <!-- Header Section -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold text-light mb-1 d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+                    Account Security & Settings
+                </h3>
+                <p class="text-muted small mb-0">Manage your two-factor authentication, account credentials, and security preferences.</p>
+            </div>
+            <div>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fs-xs">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Zero-Knowledge Vault
+                </span>
+            </div>
+        </div>
+
+        <!-- 1. Two-Factor Authentication (2FA) Module Card -->
+        <div class="glass-card p-4 mb-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 pb-3 mb-3 border-bottom border-secondary border-opacity-25">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-circle-sm bg-primary bg-opacity-20 text-info d-flex align-items-center justify-content-center" style="width:40px;height:40px;">
+                        <svg class="svg-icon fs-5 text-info" viewBox="0 0 16 16">
+                            <path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-light mb-0">Two-Factor Authentication (TOTP)</h5>
+                        <p class="text-muted fs-xs mb-0">Protect your encrypted vault with an extra layer of verification via Google Authenticator or Authy.</p>
+                    </div>
+                </div>
+                <div>
+                    {% if current_user.totp_enabled %}
+                    <span class="status-pill-active px-3 py-1 fs-xs">
+                        <svg class="svg-icon me-1 text-success" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                        2FA Enabled
+                    </span>
+                    {% else %}
+                    <span class="status-pill-disabled px-3 py-1 fs-xs">
+                        <svg class="svg-icon me-1 text-danger" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        2FA Not Active
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if current_user.totp_enabled %}
+            <div class="row g-3 align-items-center">
+                <div class="col-md-7">
+                    <p class="small text-light mb-1">
+                        <svg class="svg-icon text-success me-1" viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.75.75 0 0 1 1.06-1.06l.347.347 1.017-1.696a.75.75 0 1 1 1.288.773Z"/></svg>
+                        Your account is secured with time-based OTP. You have <strong class="text-info font-mono">{{ backup_count }}</strong> remaining active recovery backup code(s).
+                    </p>
+                    <p class="text-muted fs-xs mb-0">Use backup codes in case you lose access to your authenticator app.</p>
+                </div>
+                <div class="col-md-5 d-flex flex-wrap gap-2 justify-content-md-end">
+                    <a href="{{ url_for('auth.view_backup_codes') }}" class="btn btn-outline-info btn-sm rounded-pill px-3 shadow-sm">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                        Manage Backup Codes
+                    </a>
+                    <a href="{{ url_for('auth.disable_2fa') }}" class="btn btn-outline-danger btn-sm rounded-pill px-3 shadow-sm">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z" /></svg>
+                        Disable 2FA
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                <div>
+                    <p class="small text-muted mb-0">Two-factor authentication adds an essential verification step during login using an authenticator app.</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('auth.setup_2fa') }}" class="btn btn-success btn-sm rounded-pill px-4 shadow-sm fw-semibold">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+                        Enable 2FA Protection
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- 2. Account Profile Information Card -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="fw-bold text-light mb-1 d-flex align-items-center gap-2">
+                <svg class="svg-icon text-primary" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>
+                Account Profile
+            </h5>
+            <p class="text-muted fs-xs mb-4">Your personal identity and access privileges in SafeVault.</p>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label text-muted fs-xs text-uppercase fw-semibold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark bg-opacity-50 border-secondary border-opacity-25 text-muted font-mono">@</span>
+                        <input type="text" class="form-control bg-dark bg-opacity-40 border-secondary border-opacity-25 text-light" value="{{ current_user.username }}" readonly disabled>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label text-muted fs-xs text-uppercase fw-semibold">Email Address</label>
+                    <input type="email" class="form-control bg-dark bg-opacity-40 border-secondary border-opacity-25 text-light" value="{{ current_user.email }}" readonly disabled>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted fs-xs text-uppercase fw-semibold">Role & Access</label>
+                    <div class="d-flex align-items-center" style="height: 38px;">
+                        {% if current_user.is_admin %}
+                        <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-2 fs-xs d-inline-flex align-items-center gap-1">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/><path d="M3.732 1.2a1 1 0 0 1 1.856 0l.966 2.373a1 1 0 0 0 .748.565l2.553.256a1 1 0 0 1 .57 1.756l-1.92 1.701a1 1 0 0 0-.306.94l.564 2.507a1 1 0 0 1-1.488 1.08L5.474 11.2a1 1 0 0 0-.948 0l-2.143 1.178a1 1 0 0 1-1.488-1.08l.564-2.507a1 1 0 0 0-.306-.94L.733 6.15a1 1 0 0 1 .57-1.756l2.553-.256a1 1 0 0 0 .748-.565L3.732 1.2z"/></svg>
+                            ADMINISTRATOR
+                        </span>
+                        {% else %}
+                        <span class="badge bg-secondary bg-opacity-50 text-light rounded-pill px-3 py-2 fs-xs d-inline-flex align-items-center gap-1">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.029 10 8 10c-2.029 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/></svg>
+                            STANDARD USER
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Password Security Card -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="fw-bold text-light mb-1 d-flex align-items-center gap-2">
+                <svg class="svg-icon text-warning" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+                Update Account Password
+            </h5>
+            <p class="text-muted fs-xs mb-4">Ensure your account password uses at least 8 characters, uppercase, numbers, and special symbols.</p>
+
+            <form method="POST" action="{{ url_for('auth.settings') }}" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label text-light small fw-semibold">{{ form.current_password.label.text }}</label>
+                        {{ form.current_password(class="form-control bg-dark bg-opacity-40 border-secondary border-opacity-25 text-light" + (" is-invalid" if form.current_password.errors else ""), placeholder="Enter your current password") }}
+                        {% for error in form.current_password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light small fw-semibold">{{ form.new_password.label.text }}</label>
+                        {{ form.new_password(class="form-control bg-dark bg-opacity-40 border-secondary border-opacity-25 text-light" + (" is-invalid" if form.new_password.errors else ""), placeholder="Enter new strong password") }}
+                        {% for error in form.new_password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-light small fw-semibold">{{ form.confirm_new_password.label.text }}</label>
+                        {{ form.confirm_new_password(class="form-control bg-dark bg-opacity-40 border-secondary border-opacity-25 text-light" + (" is-invalid" if form.confirm_new_password.errors else ""), placeholder="Confirm new password") }}
+                        {% for error in form.confirm_new_password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm fw-semibold">
+                        <i class="bi bi-key-fill me-1"></i> Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {% if current_user.is_admin %}
+        <!-- 4. Recent Security Audit Log History (Visible to Admin) -->
+        <div class="glass-card p-4 mb-4">
+            <h5 class="fw-bold text-light mb-1 d-flex align-items-center gap-2">
+                <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+                Recent Security Activity
+            </h5>
+            <p class="text-muted fs-xs mb-3">Audit trail of recent logins and security-sensitive operations on your account.</p>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0" style="background:transparent;">
+                    <thead>
+                        <tr class="border-bottom border-secondary border-opacity-25 text-muted fs-xs text-uppercase">
+                            <th>Action</th>
+                            <th>Status</th>
+                            <th>IP Address</th>
+                            <th>Timestamp (UTC)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="fs-sm">
+                        {% for log in recent_logs %}
+                        <tr class="border-bottom border-secondary border-opacity-10">
+                            <td>
+                                <span class="badge bg-secondary bg-opacity-25 text-light font-mono">{{ log.action }}</span>
+                            </td>
+                            <td>
+                                {% if log.status == 'success' %}
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill">Success</span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td class="font-mono text-muted small">{{ log.ip_address or 'Local / Unknown' }}</td>
+                            <td class="text-muted small">{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">No activity logs recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

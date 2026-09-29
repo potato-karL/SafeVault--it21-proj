@@ -1,0 +1,478 @@
+{% extends "base.html" %}
+{% block title %}Audit & Event Logs - SafeVault Admin{% endblock %}
+{% block page_title %}Audit Trail Viewer{% endblock %}
+
+{% block content %}
+<!-- Audit Trail Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none text-warning d-inline-flex align-items-center gap-1">
+                        <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/><path d="M3.732 1.2a1 1 0 0 1 1.856 0l.966 2.373a1 1 0 0 0 .748.565l2.553.256a1 1 0 0 1 .57 1.756l-1.92 1.701a1 1 0 0 0-.306.94l.564 2.507a1 1 0 0 1-1.488 1.08L5.474 11.2a1 1 0 0 0-.948 0l-2.143 1.178a1 1 0 0 1-1.488-1.08l.564-2.507a1 1 0 0 0-.306-.94L.733 6.15a1 1 0 0 1 .57-1.756l2.553-.256a1 1 0 0 0 .748-.565L3.732 1.2z"/></svg> Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Audit Trail</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <svg class="svg-icon text-warning fs-2" viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+            <div>
+                <h3 class="fw-bold mb-0 text-light">Advanced Audit Trail</h3>
+                <p class="text-muted small mb-0">Comprehensive security audit logging and event tracking</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards — unified .dash-stat cards matching dashboard -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Total Events</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.total_events or 0 }}</div>
+            <div class="text-muted fs-xs mt-1">Audit Records</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--danger">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Failed Events</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.failed_events or 0 }}</div>
+            <div class="text-muted fs-xs mt-1">Error Conditions</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--warn">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Suspicious</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.146.146 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.163.163 0 0 1-.054.06.116.116 0 0 1-.066.017H1.146a.115.115 0 0 1-.066-.017.163.163 0 0 1-.054-.06.176.176 0 0 1 .002-.183L7.884 2.073a.147.147 0 0 1 .054-.057zm1.044-.45a1.13 1.13 0 0 0-2.008 0L.127 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/><path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.suspicious_events or 0 }}</div>
+            <div class="text-muted fs-xs mt-1">Security Alerts</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--info">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">High Risk</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.high_risk_events or 0 }}</div>
+            <div class="text-muted fs-xs mt-1">Critical Actions</div>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Bar (Category & Status only) -->
+<div class="glass-card p-3 mb-4">
+    <div class="row g-3 align-items-end">
+        <div class="col-lg-5 col-md-5 col-sm-6">
+            <label class="form-label mb-1 text-muted small fw-semibold text-uppercase">Category</label>
+            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCategory" style="height: 33px;">
+                <option value="">All Categories</option>
+                {% for cat in quick_filters.categories %}
+                <option value="{{ cat }}">{{ cat.title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <label class="form-label mb-1 text-muted small fw-semibold text-uppercase">Status</label>
+            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterStatus" style="height: 33px;">
+                <option value="">All Statuses</option>
+                {% for st in quick_filters.statuses %}
+                <option value="{{ st }}">{{ st.title() }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12">
+            <label class="form-label mb-1 text-muted small fw-semibold text-uppercase d-none d-sm-block" style="visibility: hidden;">Actions</label>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-primary btn-sm flex-grow-1 d-inline-flex align-items-center justify-content-center gap-2" id="applyFilterBtn" onclick="applyFilters()" title="Apply Filters" style="height: 33px;">
+                    <svg class="svg-icon" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/></svg>
+                    <span>Apply Filter</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center gap-1 px-3" onclick="clearFilters()" title="Clear Filters" style="height: 33px;">
+                    <svg class="svg-icon" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z"/></svg>
+                    <span>Clear</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs Table -->
+<div class="glass-card p-4" id="auditTableContainer">
+    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+        <div class="d-flex align-items-center gap-3">
+            <h5 class="fw-bold text-light mb-0">Audit Events</h5>
+            <span class="badge bg-secondary bg-opacity-25 text-muted border border-secondary border-opacity-25 rounded-pill fs-xs" id="recordCountBadge">
+                Loading…
+            </span>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <label class="form-label mb-0 text-muted small">Per page</label>
+                <select class="form-select form-select-sm bg-dark text-light border-secondary" id="perPageSelect" style="width:80px;">
+                    <option value="10" selected>10</option>
+                    <option value="15">15</option>
+                </select>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Auto-refresh</span>
+                <div class="form-check form-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="autoRefresh">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle" id="auditTable">
+            <thead>
+                <tr class="text-muted small text-uppercase border-bottom border-secondary border-opacity-25">
+                    <th style="width:160px;">Timestamp</th>
+                    <th>Action</th>
+                    <th>Category</th>
+                    <th>User</th>
+                    <th>Target</th>
+                    <th>Status</th>
+                    <th>Risk</th>
+                    <th>IP Address</th>
+                    <th class="text-end">Details</th>
+                </tr>
+            </thead>
+            <tbody id="auditTableBody">
+                {% for log in results.logs %}
+                <tr data-row class="{% if log.is_suspicious %}table-suspicious{% endif %}">
+                    <td class="font-mono text-muted small text-nowrap">{{ log.timestamp | localtime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 rounded-pill px-2 py-1 font-mono small">
+                            {{ log.action }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-cat-{{ log.category }} rounded-pill px-2 py-1 text-capitalize">
+                            {{ log.category }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if log.username %}
+                            <span class="text-info fw-medium">{{ log.username }}</span>
+                        {% else %}
+                            <span class="text-muted">System</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted small">
+                        {% if log.target_name %}
+                            {{ log.target_name }}
+                        {% elif log.target_id %}
+                            {{ log.target_type }}#{{ log.target_id }}
+                        {% else %}
+                            <span class="text-muted opacity-50">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-status-{{ log.status }} rounded-pill px-2 py-1 text-capitalize">{{ log.status }}</span>
+                    </td>
+                    <td>
+                        {% if log.risk_level >= 70 %}
+                            <span class="badge risk-high rounded-pill px-2 py-1">High</span>
+                        {% elif log.risk_level >= 40 %}
+                            <span class="badge risk-medium rounded-pill px-2 py-1">Medium</span>
+                        {% else %}
+                            <span class="badge risk-low rounded-pill px-2 py-1">Low</span>
+                        {% endif %}
+                    </td>
+                    <td class="font-mono text-muted small">{{ log.ip_address or 'N/A' }}</td>
+                    <td class="text-end">
+                        <button class="btn btn-icon btn-outline-info btn-sm" onclick="showAuditDetails('{{ log.id }}')" title="View Details">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr id="emptyRow">
+                    <td colspan="9" class="text-center py-5 text-muted">
+                        <svg class="svg-icon mb-2 d-block mx-auto" style="width:32px;height:32px;opacity:0.3;" viewBox="0 0 16 16"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5z"/></svg>
+                        No audit logs found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex align-items-center justify-content-between mt-3 pt-3 border-top border-secondary border-opacity-25" id="paginationWrapper">
+        <div class="text-muted small" id="paginationInfo">—</div>
+        <nav aria-label="Audit log pagination">
+            <ul class="pagination pagination-sm mb-0 gap-1" id="paginationControls"></ul>
+        </nav>
+    </div>
+</div>
+
+<!-- Audit Detail Modal -->
+<div class="modal fade" id="auditDetailModal" tabindex="-1" aria-labelledby="auditDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content bg-dark border border-secondary border-opacity-25 shadow-lg">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold text-light" id="auditDetailModalLabel">Audit Log Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" id="auditDetailBody">
+                <div class="text-center text-muted py-4">Loading…</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let allRows = [];          // Array of <tr> elements (full dataset from server)
+let filteredRows = [];     // After client-side filtering
+let currentPage = 1;
+let perPage = 10;
+let autoRefreshInterval = null;
+let currentApiFilters = {}; // Filters applied via API fetch
+
+// ── Collect initial server-rendered rows ─────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    allRows = Array.from(document.querySelectorAll('#auditTableBody tr[data-row]'));
+    filteredRows = [...allRows];
+    renderPage();
+    updateBadge();
+});
+
+// ── Per-page selector ─────────────────────────────────────────────────────
+document.getElementById('perPageSelect').addEventListener('change', function () {
+    perPage = parseInt(this.value, 10);
+    currentPage = 1;
+    renderPage();
+});
+
+// ── Dropdown filter bar ───────────────────────────────────────────────────
+function applyFilters() {
+    const category = document.getElementById('filterCategory').value;
+    const status   = document.getElementById('filterStatus').value;
+
+    const params = {};
+    if (category) params.category = category;
+    if (status)   params.status   = status;
+
+    fetchFilteredLogs(params);
+}
+
+function clearFilters() {
+    document.getElementById('filterCategory').value = '';
+    document.getElementById('filterStatus').value   = '';
+    fetchFilteredLogs({});
+}
+
+// ── API fetch + table update ──────────────────────────────────────────────
+function fetchFilteredLogs(filters) {
+    currentApiFilters = filters;
+    const params = new URLSearchParams(filters);
+    params.set('per_page', 200); // Fetch up to 200, paginate client-side
+
+    fetch(`{{ url_for('admin.audit_trail_api') }}?${params}`)
+        .then(r => r.json())
+        .then(data => {
+            populateTableRows(data.logs || []);
+        })
+        .catch(err => console.error('Error loading audit logs:', err));
+}
+
+function populateTableRows(logs) {
+    const tbody = document.getElementById('auditTableBody');
+    tbody.innerHTML = '';
+
+    if (!logs.length) {
+        tbody.innerHTML = `<tr id="emptyRow"><td colspan="9" class="text-center py-5 text-muted">
+            <svg class="svg-icon mb-2 d-block mx-auto" style="width:32px;height:32px;opacity:0.3;" viewBox="0 0 16 16">
+                <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5z"/>
+            </svg>No audit logs found.</td></tr>`;
+        allRows = [];
+        filteredRows = [];
+        renderPage();
+        updateBadge();
+        return;
+    }
+
+    logs.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-row', '');
+        if (log.is_suspicious) tr.className = 'table-suspicious';
+
+        const catClass = `badge-cat-${(log.category || 'system').toLowerCase()}`;
+        const statusClass = (log.status === 'success') ? 'badge-status-success' : 'badge-status-failure';
+        const riskLabel = log.risk_level >= 70 ? 'High' : log.risk_level >= 40 ? 'Medium' : 'Low';
+        const riskClass = log.risk_level >= 70 ? 'risk-high' : log.risk_level >= 40 ? 'risk-medium' : 'risk-low';
+
+        tr.innerHTML = `
+            <td class="font-mono text-muted small text-nowrap">${formatDateTime(log.timestamp)}</td>
+            <td><span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-50 rounded-pill px-2 py-1 font-mono small">${log.action}</span></td>
+            <td><span class="badge ${catClass} rounded-pill px-2 py-1 text-capitalize">${log.category}</span></td>
+            <td>${log.username ? `<span class="text-info fw-medium">${log.username}</span>` : '<span class="text-muted">System</span>'}</td>
+            <td class="text-muted small">${log.target_name || (log.target_id ? `${log.target_type}#${log.target_id}` : '<span class="opacity-50">—</span>')}</td>
+            <td><span class="badge ${statusClass} rounded-pill px-2 py-1 text-capitalize">${log.status}</span></td>
+            <td><span class="badge ${riskClass} rounded-pill px-2 py-1">${riskLabel}</span></td>
+            <td class="font-mono text-muted small">${log.ip_address || 'N/A'}</td>
+            <td class="text-end">
+                <button class="btn btn-icon btn-outline-info btn-sm" onclick="showAuditDetails('${log.id}')" title="View Details">
+                    <svg class="svg-icon" viewBox="0 0 16 16"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg>
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+
+    allRows = Array.from(document.querySelectorAll('#auditTableBody tr[data-row]'));
+    filteredRows = [...allRows];
+    currentPage = 1;
+    renderPage();
+    updateBadge();
+}
+
+// ── Pagination render ─────────────────────────────────────────────────────
+function renderPage() {
+    const totalRows  = filteredRows.length;
+    const totalPages = Math.max(1, Math.ceil(totalRows / perPage));
+
+    // Guard page bounds
+    if (currentPage > totalPages) currentPage = totalPages;
+
+    const start = (currentPage - 1) * perPage;
+    const end   = Math.min(start + perPage, totalRows);
+
+    // Show / hide rows
+    allRows.forEach(tr => (tr.style.display = 'none'));
+    filteredRows.slice(start, end).forEach(tr => (tr.style.display = ''));
+
+    // Update info text
+    const info = document.getElementById('paginationInfo');
+    if (totalRows === 0) {
+        info.textContent = 'No records';
+    } else {
+        info.textContent = `Showing ${start + 1}–${end} of ${totalRows} records`;
+    }
+
+    // Build page controls
+    const ul = document.getElementById('paginationControls');
+    ul.innerHTML = '';
+
+    const mkItem = (label, page, disabled, active) => {
+        const li = document.createElement('li');
+        li.className = 'page-item' + (disabled ? ' disabled' : '') + (active ? ' active' : '');
+        const a = document.createElement('a');
+        a.className = 'page-link';
+        a.href = '#';
+        a.innerHTML = label;
+        if (!disabled && !active) {
+            a.addEventListener('click', e => { e.preventDefault(); currentPage = page; renderPage(); });
+        }
+        li.appendChild(a);
+        ul.appendChild(li);
+    };
+
+    mkItem('&laquo;', currentPage - 1, currentPage === 1, false);
+
+    // Page window
+    const delta = 2;
+    let pages = new Set([1, totalPages]);
+    for (let i = Math.max(1, currentPage - delta); i <= Math.min(totalPages, currentPage + delta); i++) pages.add(i);
+    pages = Array.from(pages).sort((a, b) => a - b);
+
+    let prev = null;
+    pages.forEach(p => {
+        if (prev !== null && p - prev > 1) {
+            const li = document.createElement('li');
+            li.className = 'page-item disabled';
+            li.innerHTML = '<span class="page-link">…</span>';
+            ul.appendChild(li);
+        }
+        mkItem(p, p, false, p === currentPage);
+        prev = p;
+    });
+
+    mkItem('&raquo;', currentPage + 1, currentPage === totalPages, false);
+}
+
+function updateBadge() {
+    const badge = document.getElementById('recordCountBadge');
+    badge.textContent = filteredRows.length === 0 ? 'No records' : `${filteredRows.length} record${filteredRows.length !== 1 ? 's' : ''}`;
+}
+
+// ── Detail modal ──────────────────────────────────────────────────────────
+function showAuditDetails(logId) {
+    const modal = new bootstrap.Modal(document.getElementById('auditDetailModal'));
+    const body  = document.getElementById('auditDetailBody');
+    body.innerHTML = '<div class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2"></div>Loading…</div>';
+    modal.show();
+
+    fetch(`{{ url_for('admin.audit_trail_api') }}?log_id=${logId}&include_details=true`)
+        .then(r => r.json())
+        .then(data => {
+            const log = (data.logs || [])[0];
+            if (!log) { body.innerHTML = '<p class="text-muted text-center py-4">Log entry not found.</p>'; return; }
+            body.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="text-muted fs-xs fw-semibold text-uppercase mb-1">Timestamp</div>
+                        <div class="font-mono text-light small">${formatDateTime(log.timestamp)}</div>
+                    </div></div>
+                    <div class="col-md-6"><div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="text-muted fs-xs fw-semibold text-uppercase mb-1">Action</div>
+                        <div class="font-mono text-light small">${log.action}</div>
+                    </div></div>
+                    <div class="col-md-6"><div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="text-muted fs-xs fw-semibold text-uppercase mb-1">User</div>
+                        <div class="text-info">${log.username || 'System'}</div>
+                    </div></div>
+                    <div class="col-md-6"><div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 h-100">
+                        <div class="text-muted fs-xs fw-semibold text-uppercase mb-1">IP Address</div>
+                        <div class="font-mono text-light small">${log.ip_address || 'N/A'}</div>
+                    </div></div>
+                    <div class="col-12"><div class="p-3 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25">
+                        <div class="text-muted fs-xs fw-semibold text-uppercase mb-2">Details</div>
+                        <pre class="text-light small mb-0" style="white-space:pre-wrap;word-break:break-all;">${JSON.stringify(log.details || {}, null, 2)}</pre>
+                    </div></div>
+                </div>`;
+        })
+        .catch(() => { body.innerHTML = '<p class="text-danger text-center py-4">Failed to load details.</p>'; });
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function formatDateTime(ts) {
+    return new Date(ts).toLocaleString('en-US', {
+        year:'numeric', month:'2-digit', day:'2-digit',
+        hour:'2-digit', minute:'2-digit', second:'2-digit'
+    });
+}
+
+// ── Auto-refresh ──────────────────────────────────────────────────────────
+document.getElementById('autoRefresh').addEventListener('change', function () {
+    if (this.checked) {
+        autoRefreshInterval = setInterval(() => fetchFilteredLogs(currentApiFilters), 30000);
+    } else {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+});
+</script>
+{% endblock %}

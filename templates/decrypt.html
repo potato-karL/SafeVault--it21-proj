@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Decrypt - {{ file.original_filename }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4">
+            <div class="text-center mb-4">
+                <div class="d-inline-flex p-3 bg-primary bg-opacity-15 text-primary rounded-circle fs-2 mb-2">
+                    <svg class="svg-icon" style="width:32px;height:32px;" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg>
+                </div>
+                <h4 class="fw-bold mb-1 text-light">Decrypt Vault File</h4>
+                <p class="text-info font-mono small text-truncate mb-0">
+                    <svg class="svg-icon text-warning me-1" viewBox="0 0 16 16"><path d="M7 5.5a1.5 1.5 0 0 1 3 0V7h.5A1.5 1.5 0 0 1 12 8.5v3a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 11.5v-3A1.5 1.5 0 0 1 5.5 7H6V5.5zm1.5-1a.5.5 0 0 0-.5.5V7h1V4.5a.5.5 0 0 0-.5-.5z"/><path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/></svg>
+                    {{ file.original_filename }}
+                </p>
+            </div>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="mb-4">
+                    <label for="encryption_password" class="form-label text-light small fw-medium mb-1">Master Decryption Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></span>
+                        {{ form.encryption_password(class="form-control" + (" is-invalid" if form.encryption_password.errors else ""), autofocus=true, placeholder="Enter decryption key...") }}
+                        {% for error in form.encryption_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm py-2">
+                        <svg class="svg-icon me-2" viewBox="0 0 16 16"><path d="M11 1a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-2zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z"/></svg> Decrypt &amp; Download Payload
+                    </button>
+                    <a href="{{ url_for('files.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

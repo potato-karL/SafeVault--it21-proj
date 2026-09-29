@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block title %}Register - SafeVault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4">
+            <div class="text-center mb-4">
+                <div class="mb-2">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="SafeVault" style="height: 54px;" class="brand-logo-img">
+                </div>
+                <h4 class="fw-bold mb-1 text-light">Create Vault Account</h4>
+                <p class="text-muted small mb-0">Join SafeVault for zero-knowledge file security</p>
+            </div>
+
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="mb-3">
+                    <label for="username" class="form-label text-light small fw-medium mb-1">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0zE M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/></svg>
+                        </span>
+                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else ""), autofocus=true, placeholder="Choose a unique username...") }}
+                        {% for error in form.username.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label text-light small fw-medium mb-1">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.384L8 9.583l-1.326-.795-5.64 3.384A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg>
+                        </span>
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="name@example.com") }}
+                        {% for error in form.email.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label text-light small fw-medium mb-1">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+                        </span>
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="passwordInput", placeholder="Create account password...") }}
+                        {% for error in form.password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                    <!-- Password Strength Meter -->
+                    <div class="strength-bar-wrap mt-2">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-1">
+                        <div class="strength-label text-muted fs-xs" id="strengthLabel">Enter a password to evaluate strength</div>
+                        <div class="fs-xs text-muted" id="strengthHint"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label text-light small fw-medium mb-1">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/><path d="M10.854 5.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 7.793l2.646-2.647a.5.5 0 0 1 .708 0z"/></svg>
+                        </span>
+                        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm account password...") }}
+                        {% for error in form.confirm_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary w-100 rounded-pill fw-semibold shadow-sm py-2">
+                    <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm.5-5v1h1a.5.5 0 0 1 0 1h-1v1a.5.5 0 0 1-1 0v-1h-1a.5.5 0 0 1 0-1h1v-1a.5.5 0 0 1 1 0Zm-2-6a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M8.256 14a4.5 4.5 0 0 1-.229-1.004H3c.001-.246.154-.986.75-1.666C4.344 10.64 5.35 10 7 10c.801 0 1.503.149 2.083.407A4.5 4.5 0 0 1 10.278 9C9.28 8.358 8.087 8 7 8c-4 0-5 3-5 4 0 .667.333 1 1 1h5.256Z"/></svg> Create Secure Account
+                </button>
+            </form>
+
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-center text-muted fs-xs">
+                Already have an account? <a href="{{ url_for('auth.login') }}" class="text-info text-decoration-none fw-semibold">Sign in here</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const pwdInput    = document.getElementById('passwordInput');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthLbl = document.getElementById('strengthLabel');
+    const strengthHnt = document.getElementById('strengthHint');
+    const submitBtn   = document.getElementById('submitBtn');
+
+    if (pwdInput && strengthBar && submitBtn) {
+        pwdInput.addEventListener('input', function() {
+            const val   = pwdInput.value;
+            const score = calcStrength(val);
+            strengthBar.className = 'strength-bar';
+            
+            if (!val) {
+                strengthBar.style.width = '0%';
+                strengthLbl.textContent = 'Enter a password to evaluate strength';
+                strengthLbl.style.color = '#64748b';
+                strengthHnt.textContent = '';
+                submitBtn.disabled = true;
+                return;
+            }
+            
+            strengthBar.classList.add('s' + score);
+            const msgs = [
+                ['Weak Password',       '#f87171', 'Add uppercase, numbers, and symbols'],
+                ['Weak Password',       '#f87171', 'Add uppercase, numbers, and symbols'],
+                ['Fair Strength',       '#fbbf24', 'Try 12+ chars with mixed case'],
+                ['Good & Secure',       '#34d399', 'Meets security requirements'],
+                ['Excellent Security',  '#22c55e', 'Maximum entropy achieved'],
+            ];
+            const [label, color, hint] = msgs[score] || msgs[0];
+            strengthLbl.textContent = label;
+            strengthLbl.style.color = color;
+            strengthHnt.textContent = hint;
+            
+            // Enable submit only when strength >= 3 (Good)
+            submitBtn.disabled = score < 3;
+        });
+
+        // Initial state: disable if password empty or weak
+        if (!pwdInput.value || calcStrength(pwdInput.value) < 3) {
+            submitBtn.disabled = true;
+        }
+
+        function calcStrength(p) {
+            if (!p || p.length < 6) return 0;
+            let s = 0;
+            if (p.length >= 8)  s++;
+            if (p.length >= 12) s++;
+            if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+            if (/[0-9]/.test(p)) s++;
+            if (/[^A-Za-z0-9]/.test(p)) s++;
+            return s <= 1 ? 1 : s === 2 ? 2 : s <= 4 ? 3 : 4;
+        }
+    }
+});
+</script>
+{% endblock %}

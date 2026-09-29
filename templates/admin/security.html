@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}Security Center - SafeVault Admin{% endblock %}
+{% block page_title %}Security Center{% endblock %}
+
+{% block content %}
+<!-- Security Center Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none text-warning d-inline-flex align-items-center gap-1">
+                        <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/><path d="M3.732 1.2a1 1 0 0 1 1.856 0l.966 2.373a1 1 0 0 0 .748.565l2.553.256a1 1 0 0 1 .57 1.756l-1.92 1.701a1 1 0 0 0-.306.94l.564 2.507a1 1 0 0 1-1.488 1.08L5.474 11.2a1 1 0 0 0-.948 0l-2.143 1.178a1 1 0 0 1-1.488-1.08l.564-2.507a1 1 0 0 0-.306-.94L.733 6.15a1 1 0 0 1 .57-1.756l2.553-.256a1 1 0 0 0 .748-.565L3.732 1.2z"/></svg> Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Security Center</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <svg class="svg-icon text-warning fs-2" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+            <div>
+                <h3 class="fw-bold mb-0 text-light">Security Command Center</h3>
+                <p class="text-muted small mb-0">Real-time threat monitoring, brute force mitigation &amp; IP access control</p>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/></svg>
+            Back to Dashboard
+        </a>
+        <a href="{{ url_for('admin.ip_blocklist') }}" class="btn btn-warning btn-sm rounded-pill px-3 shadow-sm">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708z"/></svg>
+            Manage IP Blocks
+        </a>
+    </div>
+</div>
+
+<!-- Security Metrics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--danger">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Blocked IPs</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.total_blocked }}</div>
+            <div class="text-muted fs-xs mt-1">Active Blocks</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--warn">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Recent Bans</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.recent_bans }}</div>
+            <div class="text-muted fs-xs mt-1">Last 24 Hours</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--info">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Failed Logins</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.failed_logins_24h }}</div>
+            <div class="text-muted fs-xs mt-1">Last 24 Hours</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--ok">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Blocked Attempts</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.blocked_attempts_24h }}</div>
+            <div class="text-muted fs-xs mt-1">Threats Stopped</div>
+        </div>
+    </div>
+</div>
+
+<!-- Content Row -->
+<div class="row g-4">
+    <!-- Active IP Blocks -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0 text-light d-flex align-items-center gap-2">
+                        <svg class="svg-icon text-danger" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708z"/></svg>
+                        Active IP Blocks
+                    </h5>
+                    <a href="{{ url_for('admin.ip_blocklist') }}" class="btn btn-outline-danger btn-sm rounded-pill px-3">View All</a>
+                </div>
+                
+                {% if blocked_ips %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover mb-0 align-middle">
+                            <thead class="text-muted small text-uppercase border-bottom border-secondary border-opacity-25">
+                                <tr>
+                                    <th>IP Address</th>
+                                    <th>Reason</th>
+                                    <th>Blocked</th>
+                                    <th>Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ip in blocked_ips[:5] %}
+                                <tr>
+                                    <td class="font-mono text-danger fw-bold">{{ ip.ip_address }}</td>
+                                    <td class="text-truncate small" style="max-width: 150px;" title="{{ ip.reason }}">{{ ip.reason }}</td>
+                                    <td class="text-muted small font-mono">{{ ip.blocked_at.strftime('%m-%d %H:%M') }}</td>
+                                    <td>
+                                        {% if ip.is_automatic %}
+                                            <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2 py-1 fs-xs">Auto</span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-2 py-1 fs-xs">Manual</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4 my-auto">
+                        <svg class="svg-icon mb-2 text-success" style="width:36px;height:36px;" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                        <div class="fw-semibold text-light">No IP addresses currently blocked</div>
+                        <div class="small">System is secure and running normally</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Suspicious IPs -->
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0 text-light d-flex align-items-center gap-2">
+                        <svg class="svg-icon text-warning" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                        Suspicious Activity (24h)
+                    </h5>
+                    <span class="text-muted small">Top Failed Auth Sources</span>
+                </div>
+                
+                {% if suspicious_ips %}
+                    <div class="list-group list-group-flush">
+                        {% for ip_addr, fail_count in suspicious_ips %}
+                        <div class="list-group-item bg-transparent border-secondary border-opacity-25 px-0 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center gap-2">
+                                    <svg class="svg-icon text-warning" style="width:16px;height:16px;" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.04-1.365.147-2.078.323l.5 1.936a13.34 13.34 0 0 1 1.578-.244V1.077zM4.102 4.169a13.34 13.34 0 0 0-1.51.878l1.192 1.612a11.34 11.34 0 0 1 1.229-.708l-.911-1.782zm-.682 3.7a13.34 13.34 0 0 0-.599 1.892l1.934.5a11.35 11.35 0 0 1 .486-1.537l-1.82-.855z"/></svg>
+                                    <span class="font-mono text-light">{{ ip_addr }}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-2 py-1 fs-xs">{{ fail_count }} fails</span>
+                                    <!-- Quick Block Button -->
+                                    <form method="POST" action="{{ url_for('admin.block_ip') }}" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="ip_address" value="{{ ip_addr }}">
+                                        <input type="hidden" name="reason" value="Blocked due to {{ fail_count }} failed login attempts">
+                                        <input type="hidden" name="duration_hours" value="24">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3" 
+                                                onclick="return confirm('Block IP {{ ip_addr }} for 24 hours?')">
+                                            Block
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4 my-auto">
+                        <svg class="svg-icon mb-2 text-success" style="width:36px;height:36px;" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                        <div class="fw-semibold text-light">No suspicious activity detected</div>
+                        <div class="small">All login attempts appear legitimate</div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

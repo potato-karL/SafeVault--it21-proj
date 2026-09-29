@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+{% block title %}Upload &amp; Encrypt - SafeVault{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-7 col-lg-6">
+        <div class="glass-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="p-3 bg-primary bg-opacity-15 text-primary rounded-4 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                    <svg class="svg-icon" style="width:28px;height:28px;" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C1.983 6.801 1 7.954 1 9.318 1 10.824 2.243 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.187 4.78 10.312 3 8 3c-2.14 0-3.796 1.488-3.941 1.1z"/><path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/></svg>
+                </div>
+                <div>
+                    <h4 class="fw-bold mb-0 text-light">Encrypt &amp; Upload</h4>
+                    <p class="text-muted small mb-0">Client-to-Vault authenticated AES-256-GCM encryption</p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning border-0 bg-warning bg-opacity-10 text-warning rounded-3 small mb-4">
+                <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/></svg>
+                <strong>Zero-Knowledge Guarantee:</strong> Your password encrypts this file locally before saving. SafeVault never stores your password. If lost, the file cannot be decrypted.
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" novalidate id="uploadForm">
+                {{ form.hidden_tag() }}
+
+                <!-- Drag & Drop Zone -->
+                <div class="mb-3">
+                    <label class="form-label text-light small fw-medium mb-1">Select File to Encrypt</label>
+                    <div class="drop-zone" id="dropZone">
+                        <!-- ① Empty / idle state -->
+                        <div id="dropZoneEmpty">
+                            <div class="drop-zone-icon">
+                                <svg style="width:38px;height:38px;" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M4.406 3.342A5.53 5.53 0 0 1 8 2c2.69 0 4.923 2 5.166 4.579C14.758 6.804 16 8.137 16 9.773 16 11.569 14.502 13 12.687 13H3.781C1.708 13 0 11.366 0 9.318c0-1.763 1.266-3.223 2.942-3.593.143-.863.698-1.723 1.464-2.383zm.653.757c-.757.653-1.153 1.44-1.153 2.056v.448l-.445.049C1.983 6.801 1 7.954 1 9.318 1 10.824 2.243 12 3.781 12h8.906C13.98 12 15 10.988 15 9.773c0-1.216-1.02-2.228-2.313-2.228h-.5v-.5C12.187 4.78 10.312 3 8 3c-2.14 0-3.796 1.488-3.941 1.1z"/>
+                                    <path fill-rule="evenodd" d="M7.646 5.146a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8.5 6.707V10.5a.5.5 0 0 1-1 0V6.707L6.354 7.854a.5.5 0 1 1-.708-.708l2-2z"/>
+                                </svg>
+                            </div>
+                            <div class="drop-zone-label"><strong>Drag &amp; drop file here</strong> or click to browse</div>
+                        </div>
+
+                        <!-- ② File selected — shown after picking a file -->
+                        <div id="dropZoneSelected" style="display:none; pointer-events:none; position:relative; z-index:1;">
+                            <div class="mb-2 d-flex justify-content-center">
+                                <!-- File-type icon injected by JS -->
+                                <div id="fileTypeIcon" style="width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;letter-spacing:-0.5px;"></div>
+                            </div>
+                            <div class="fw-semibold text-success mb-1" style="font-size:0.875rem;">File ready to encrypt</div>
+                            <div class="d-flex align-items-center justify-content-center gap-2 mx-auto px-3 py-1 rounded-3"
+                                 style="max-width:90%;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);">
+                                <svg width="13" height="13" fill="#22c55e" viewBox="0 0 16 16">
+                                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+                                </svg>
+                                <span id="selectedFilename" class="text-light font-mono" style="font-size:0.78rem;word-break:break-all;"></span>
+                                <span id="selectedFileSize" class="text-muted" style="font-size:0.72rem;white-space:nowrap;"></span>
+                            </div>
+                            <!-- Remove button -->
+                            <button type="button" onclick="clearFileSelection()"
+                                style="pointer-events:auto;position:absolute;top:8px;right:8px;
+                                       background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+                                       border-radius:50%;width:26px;height:26px;
+                                       display:flex;align-items:center;justify-content:center;cursor:pointer;"
+                                title="Remove file">
+                                <svg width="12" height="12" fill="#94a3b8" viewBox="0 0 16 16">
+                                    <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- ③ Uploading state — shown while XHR is in flight -->
+                        <div id="dropZoneUploading" style="display:none; pointer-events:none; position:relative; z-index:1;">
+                            <div class="mb-2 d-flex justify-content-center">
+                                <div style="width:52px;height:52px;border-radius:50%;
+                                            background:rgba(59,130,246,0.15);border:2px solid rgba(59,130,246,0.5);
+                                            display:flex;align-items:center;justify-content:center;">
+                                    <!-- Spinner -->
+                                    <svg width="24" height="24" fill="none" stroke="#3b82f6" stroke-width="2.5"
+                                         stroke-linecap="round" viewBox="0 0 24 24"
+                                         style="animation:spin 1s linear infinite;">
+                                        <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
+                                        <path d="M12 2a10 10 0 0 1 10 10"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="fw-semibold text-primary mb-2" id="uploadStatusText" style="font-size:0.875rem;">
+                                Encrypting &amp; uploading…
+                            </div>
+                            <!-- Progress bar -->
+                            <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;max-width:80%;margin:0 auto 6px;">
+                                <div id="uploadProgressBar"
+                                     style="height:100%;width:0%;border-radius:99px;
+                                            background:linear-gradient(90deg,#3b82f6,#38bdf8);
+                                            transition:width 0.2s ease;
+                                            background-size:200% 100%;
+                                            animation:shimmer 1.5s infinite linear;"></div>
+                            </div>
+                            <div id="uploadProgressPct" class="text-muted" style="font-size:0.75rem;">0%</div>
+                        </div>
+
+                        {{ form.file(class="form-control" + (" is-invalid" if form.file.errors else ""), id="fileInput") }}
+                    </div>
+                    {% for error in form.file.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                    <div class="form-text text-muted fs-xs mt-1">
+                        Allowed: PDF, DOCX, XLSX, TXT, PNG, JPG, ZIP, CSV, LOG (Max 25 MB). Dangerous scripts &amp; binaries are blocked.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="encryption_password" class="form-label text-light small fw-medium mb-1">Master Encryption Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M3.5 11.5a3.5 3.5 0 1 1 3.163-5H14L15.5 8 14 9.5l-1-1-1 1-1-1-1 1-1-1-1 1H6.663a3.5 3.5 0 0 1-3.163 2zM2.5 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/></svg></span>
+                        {{ form.encryption_password(class="form-control" + (" is-invalid" if form.encryption_password.errors else ""), id="encryptionPasswordInput", placeholder="Enter strong encryption key...") }}
+                        {% for error in form.encryption_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                    <!-- Password Strength Meter Bar -->
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="strength-label text-muted" id="strengthLabel">Enter a password to evaluate strength</div>
+                        <div class="fs-xs text-muted" id="strengthHint"></div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label text-light small fw-medium mb-1">Confirm Master Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><svg class="svg-icon text-success" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524zM11.5 6.5l-4 4-2-2 1-1 1 1 3-3 1 1z"/></svg></span>
+                        {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), placeholder="Confirm encryption key...") }}
+                        {% for error in form.confirm_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" id="submitBtn" class="btn btn-primary btn-lg rounded-pill fw-semibold shadow-sm py-2">
+                        <svg class="svg-icon me-2" viewBox="0 0 16 16"><path d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a.5.5 0 0 0-.335.45c-.463 3.659.626 6.811 2.215 8.93 1.258 1.677 2.766 2.658 3.528 3.09.263.15.55.15.814 0 .762-.432 2.27-1.413 3.528-3.09 1.589-2.119 2.678-5.27 2.215-8.93a.5.5 0 0 0-.335-.45c-.658-.215-1.777-.57-2.887-.87C9.843.265 8.69 0 8 0zm0 5a1.5 1.5 0 0 1 1.5 1.5V8h.5a1 1 0 0 1 1 1v2.5a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h.5V6.5A1.5 1.5 0 0 1 8 5zm-1 3v-1.5a1 1 0 1 1 2 0V8H7z"/></svg> Encrypt &amp; Upload Now
+                    </button>
+                    <a href="{{ url_for('files.dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill">
+                        <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<style>
+@keyframes spin    { to { transform: rotate(360deg); } }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+</style>
+<script>
+// ── File-type icon map ─────────────────────────────────────────────────────
+const FILE_TYPES = {
+    // Images
+    png:  { bg:'rgba(168,85,247,0.18)', border:'rgba(168,85,247,0.5)', label:'PNG',  color:'#c084fc' },
+    jpg:  { bg:'rgba(168,85,247,0.18)', border:'rgba(168,85,247,0.5)', label:'JPG',  color:'#c084fc' },
+    jpeg: { bg:'rgba(168,85,247,0.18)', border:'rgba(168,85,247,0.5)', label:'JPG',  color:'#c084fc' },
+    gif:  { bg:'rgba(168,85,247,0.18)', border:'rgba(168,85,247,0.5)', label:'GIF',  color:'#c084fc' },
+    // Documents
+    pdf:  { bg:'rgba(239,68,68,0.18)',  border:'rgba(239,68,68,0.55)', label:'PDF',  color:'#f87171' },
+    doc:  { bg:'rgba(59,130,246,0.18)', border:'rgba(59,130,246,0.5)', label:'DOC',  color:'#60a5fa' },
+    docx: { bg:'rgba(59,130,246,0.18)', border:'rgba(59,130,246,0.5)', label:'DOCX', color:'#60a5fa' },
+    xls:  { bg:'rgba(34,197,94,0.18)',  border:'rgba(34,197,94,0.5)',  label:'XLS',  color:'#4ade80' },
+    xlsx: { bg:'rgba(34,197,94,0.18)',  border:'rgba(34,197,94,0.5)',  label:'XLSX', color:'#4ade80' },
+    csv:  { bg:'rgba(34,197,94,0.18)',  border:'rgba(34,197,94,0.5)',  label:'CSV',  color:'#4ade80' },
+    // Text / code
+    txt:  { bg:'rgba(148,163,184,0.18)',border:'rgba(148,163,184,0.4)',label:'TXT',  color:'#cbd5e1' },
+    log:  { bg:'rgba(148,163,184,0.18)',border:'rgba(148,163,184,0.4)',label:'LOG',  color:'#cbd5e1' },
+    // Archive
+    zip:  { bg:'rgba(251,191,36,0.18)', border:'rgba(251,191,36,0.5)', label:'ZIP',  color:'#fbbf24' },
+};
+
+function getFileType(name) {
+    const ext = name.split('.').pop().toLowerCase();
+    return FILE_TYPES[ext] || { bg:'rgba(99,102,241,0.18)', border:'rgba(99,102,241,0.5)', label: ext.toUpperCase().slice(0,4) || 'FILE', color:'#818cf8' };
+}
+
+function formatBytes(bytes) {
+    if (bytes < 1024)       return bytes + ' B';
+    if (bytes < 1024*1024)  return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/(1024*1024)).toFixed(2) + ' MB';
+}
+
+// ── Global clear ──────────────────────────────────────────────────────────
+function clearFileSelection() {
+    // Get elements (no const declarations to avoid duplicates)
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const dzEmpty = document.getElementById('dropZoneEmpty');
+    const dzSelected = document.getElementById('dropZoneSelected');
+    const dzUploading = document.getElementById('dropZoneUploading');
+
+    if (fileInput) fileInput.value = '';
+    if (dzEmpty) dzEmpty.style.display = '';
+    if (dzSelected) dzSelected.style.display = 'none';
+    if (dzUploading) dzUploading.style.display = 'none';
+    if (dropZone) {
+        dropZone.style.borderColor = '';
+        dropZone.style.background = '';
+    }
+}
+
+// ── Main init ─────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+
+    const form          = document.getElementById('uploadForm');
+    const fileInput     = document.getElementById('fileInput');
+    const dropZone      = document.getElementById('dropZone');
+    const dzEmpty       = document.getElementById('dropZoneEmpty');
+    const dzSelected    = document.getElementById('dropZoneSelected');
+    const dzUploading   = document.getElementById('dropZoneUploading');
+    const fileTypeIcon  = document.getElementById('fileTypeIcon');
+    const filenameLbl   = document.getElementById('selectedFilename');
+    const fileSizeLbl   = document.getElementById('selectedFileSize');
+    const progressBar   = document.getElementById('uploadProgressBar');
+    const progressPct   = document.getElementById('uploadProgressPct');
+    const statusText    = document.getElementById('uploadStatusText');
+    const submitBtn     = document.getElementById('submitBtn');
+
+    // ── Drop-zone drag events ──────────────────────────────────────────────
+    window.addEventListener('dragover', e => e.preventDefault(), false);
+    window.addEventListener('drop',     e => e.preventDefault(), false);
+
+    ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.add('dragover');
+    }));
+    ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation();
+        dropZone.classList.remove('dragover');
+    }));
+
+    dropZone.addEventListener('drop', e => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files.length > 0) { 
+            fileInput.files = dt.files; 
+            console.log('Drop detected, showing file:', dt.files[0].name);
+            showSelected(dt.files[0]); 
+        }
+    });
+    
+    // Also handle clicks on the drop zone to trigger file picker
+    dropZone.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', () => {
+        console.log('File input changed. Files:', fileInput.files.length);
+        if (fileInput.files.length > 0) {
+            console.log('Showing selected file:', fileInput.files[0].name);
+            showSelected(fileInput.files[0]);
+        } else {
+            console.log('No file selected, clearing');
+            clearFileSelection();
+        }
+    });
+
+    // ── Show selected state with icon ─────────────────────────────────────
+    function showSelected(file) {
+        console.log('showSelected called with file:', file.name, file.size);
+        
+        try {
+            const ft = getFileType(file.name);
+            console.log('File type detected:', ft);
+
+            // Build the coloured badge icon
+            if (fileTypeIcon) {
+                fileTypeIcon.style.cssText = `
+                    width:52px;height:52px;border-radius:12px;
+                    display:flex;align-items:center;justify-content:center;
+                    background:${ft.bg};border:2px solid ${ft.border};
+                    font-size:${ft.label.length > 3 ? '0.65rem' : '0.75rem'};
+                    font-weight:800;letter-spacing:0.5px;color:${ft.color};
+                    font-family:var(--font-mono,'monospace');`;
+                fileTypeIcon.textContent = ft.label;
+                console.log('File type icon updated');
+            } else {
+                console.error('fileTypeIcon element not found');
+            }
+
+            if (filenameLbl) {
+                filenameLbl.textContent = file.name;
+                console.log('Filename updated:', file.name);
+            } else {
+                console.error('selectedFilename element not found');
+            }
+            
+            if (fileSizeLbl) {
+                fileSizeLbl.textContent = '(' + formatBytes(file.size) + ')';
+                console.log('File size updated:', formatBytes(file.size));
+            } else {
+                console.error('selectedFileSize element not found');
+            }
+
+            if (dzEmpty && dzSelected && dzUploading) {
+                dzEmpty.style.display      = 'none';
+                dzSelected.style.display   = '';
+                dzUploading.style.display  = 'none';
+                dropZone.style.borderColor = 'rgba(34,197,94,0.6)';
+                dropZone.style.background  = 'rgba(34,197,94,0.06)';
+                console.log('Display states updated - should show selected file');
+            } else {
+                console.error('Missing drop zone elements:', {
+                    dzEmpty: !!dzEmpty,
+                    dzSelected: !!dzSelected, 
+                    dzUploading: !!dzUploading
+                });
+            }
+        } catch (error) {
+            console.error('Error in showSelected:', error);
+        }
+    }
+
+    // ── XHR submit with progress ───────────────────────────────────────────
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        console.log('Form submit intercepted');
+
+        // Basic client-side guard — server will re-validate
+        if (!fileInput.files || fileInput.files.length === 0) {
+            alert('Please select a file first.');
+            return;
+        }
+
+        console.log('File selected:', fileInput.files[0].name, fileInput.files[0].size);
+
+        // Disable submit, switch zone to uploading state
+        submitBtn.disabled = true;
+        dzSelected.style.display   = 'none';
+        dzEmpty.style.display      = 'none';
+        dzUploading.style.display  = '';
+        dropZone.style.borderColor = 'rgba(59,130,246,0.5)';
+        dropZone.style.background  = 'rgba(59,130,246,0.05)';
+
+        const xhr  = new XMLHttpRequest();
+        const data = new FormData(form);
+
+        console.log('Starting XHR upload...');
+
+        // Upload progress (covers the file transfer to server)
+        xhr.upload.addEventListener('progress', function (e) {
+            console.log('Progress event:', e.loaded, '/', e.total);
+            if (!e.lengthComputable) return;
+            const pct = Math.round((e.loaded / e.total) * 100);
+            progressBar.style.width = pct + '%';
+            progressPct.textContent = pct + '%';
+            console.log('Upload progress:', pct + '%');
+            // Once bytes are sent server-side encryption begins
+            if (pct === 100) {
+                statusText.textContent = 'Encrypting on server…';
+                console.log('Upload complete, encrypting...');
+            }
+        }, false);
+
+        xhr.addEventListener('load', function () {
+            console.log('XHR load event fired. Status:', xhr.status);
+            
+            if (xhr.status === 200) {
+                console.log('Upload successful!');
+                // Flask redirects to dashboard on success - check if response looks like a redirect happened
+                // or if we got HTML back with errors
+                const contentType = xhr.getResponseHeader('Content-Type') || '';
+                
+                // If we got back the upload form again (with errors), display it
+                if (xhr.responseText.includes('id="uploadForm"') && xhr.responseText.includes('is-invalid')) {
+                    console.log('Form has validation errors, refreshing page with errors');
+                    document.open();
+                    document.write(xhr.responseText);
+                    document.close();
+                } else {
+                    // Success - redirect to dashboard
+                    console.log('Redirecting to dashboard...');
+                    window.location.href = '{{ url_for("files.dashboard") }}';
+                }
+            } else {
+                console.error('Upload failed with status:', xhr.status);
+                alert('Upload failed. Please try again.');
+                submitBtn.disabled = false;
+                clearFileSelection();
+            }
+        }, false);
+
+        xhr.addEventListener('error', function () {
+            console.error('XHR error event fired');
+            submitBtn.disabled = false;
+            clearFileSelection();
+            alert('Network error. Please check your connection and try again.');
+        }, false);
+
+        xhr.addEventListener('abort', function () {
+            console.warn('XHR aborted');
+            submitBtn.disabled = false;
+            clearFileSelection();
+        }, false);
+
+        xhr.open('POST', form.action || window.location.href, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        xhr.send(data);
+        console.log('XHR request sent');
+    });
+
+    // ── Password strength meter ────────────────────────────────────────────
+    const pwdInput    = document.getElementById('encryptionPasswordInput');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthLbl = document.getElementById('strengthLabel');
+    const strengthHnt = document.getElementById('strengthHint');
+    // submitBtn already declared above, reuse it
+
+    if (pwdInput && strengthBar) {
+        pwdInput.addEventListener('input', function () {
+            const val   = pwdInput.value;
+            const score = calcStrength(val);
+            strengthBar.className = 'strength-bar';
+            if (!val) {
+                strengthBar.style.width = '0%';
+                strengthLbl.textContent = 'Enter a password to evaluate strength';
+                strengthLbl.style.color = '#64748b';
+                strengthHnt.textContent = '';
+                submitBtn.disabled = true;  // Disable when empty
+                return;
+            }
+            strengthBar.classList.add('s' + score);
+            const msgs = [
+                ['Weak Password',       '#f87171', 'Add uppercase, numbers, and symbols'],
+                ['Weak Password',       '#f87171', 'Add uppercase, numbers, and symbols'],
+                ['Fair Strength',       '#fbbf24', 'Try 12+ chars with mixed case'],
+                ['Good & Secure',       '#34d399', 'Strong zero-knowledge key'],
+                ['Excellent Master Key','#22c55e', 'High cryptographic entropy'],
+            ];
+            const [label, color, hint] = msgs[score] || msgs[0];
+            strengthLbl.textContent = label;
+            strengthLbl.style.color = color;
+            strengthHnt.textContent = hint;
+            
+            // Enable submit only when strength >= 3 (Good)
+            submitBtn.disabled = score < 3;
+        });
+
+        // Initial state: disable submit button if password field is empty
+        if (!pwdInput.value || calcStrength(pwdInput.value) < 3) {
+            submitBtn.disabled = true;
+        }
+
+        function calcStrength(p) {
+            if (!p || p.length < 6) return 0;
+            let s = 0;
+            if (p.length >= 8)  s++;
+            if (p.length >= 12) s++;
+            if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+            if (/[0-9]/.test(p)) s++;
+            if (/[^A-Za-z0-9]/.test(p)) s++;
+            return s <= 1 ? 1 : s === 2 ? 2 : s <= 4 ? 3 : 4;
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,489 @@
+{% extends "base.html" %}
+{% block title %}Admin Control Center - SafeVault{% endblock %}
+{% block page_title %}Command Overview{% endblock %}
+
+{% block content %}
+<!-- Admin Control Center Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="SafeVault Admin" style="height: 42px;">
+        <div>
+            <h3 class="fw-bold mb-0 gradient-text-warning">Security Command Center</h3>
+            <div class="d-flex align-items-center gap-2 mt-1">
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 fs-xs">
+                    <svg class="svg-icon text-success me-1" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg> System Operational
+                </span>
+                <span class="text-muted small">&bull; Real-time Threat & Storage Monitoring</span>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-secondary bg-opacity-25 text-light border border-secondary border-opacity-25 rounded-pill px-3 py-2 fs-xs font-mono">
+            <svg class="svg-icon text-info me-1" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg> Live Monitoring
+        </span>
+    </div>
+</div>
+
+<!-- Key Performance Metrics Grid -->
+<style>
+.dash-stat {
+    position: relative;
+    overflow: hidden;
+    min-height: 110px;
+}
+.dash-stat::after {
+    content: '';
+    position: absolute;
+    right: -12px; bottom: -12px;
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+    pointer-events: none;
+}
+.dash-stat__icon {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 0.55rem;
+    background: rgba(255,255,255,0.07);
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+.dash-stat__icon svg { width: 18px; height: 18px; }
+.dash-stat--warn  .dash-stat__icon { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.dash-stat--danger .dash-stat__icon { background: rgba(248,113,113,0.12); color: #f87171; }
+.dash-stat--ok    .dash-stat__icon { background: rgba(52,211,153,0.12); color: #34d399; }
+.dash-stat--info  .dash-stat__icon { background: rgba(56,189,248,0.12); color: #38bdf8; }
+.dash-stat--blue  .dash-stat__icon { background: rgba(99,102,241,0.12); color: #818cf8; }
+.dash-stat .dash-stat__val { font-size: 1.65rem; line-height: 1.2; }
+</style>
+<div class="row g-3 mb-4">
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Total Users</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.total_users }}</div>
+            <div class="text-muted fs-xs mt-1">Registered Accounts</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--ok">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Active Users</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.75.75 0 0 1 1.06-1.06l.347.347 1.017-1.696a.75.75 0 1 1 1.288.773Z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.active_users }}</div>
+            <div class="text-muted fs-xs mt-1">Authorized Access</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--warn">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Blocked IPs</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M11.354 4.646a.5.5 0 0 0-.708 0l-6 6a.5.5 0 0 0 .708.708l6-6a.5.5 0 0 0 0-.708z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.blocked_ips_count }}</div>
+            <div class="text-muted fs-xs mt-1">
+                {% if stats.recent_ip_bans > 0 %}
+                    <span class="text-danger">+{{ stats.recent_ip_bans }} today</span>
+                {% else %}
+                    Security Shield Active
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--info">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Vault Files</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.total_files }}</div>
+            <div class="text-muted fs-xs mt-1">Encrypted Payloads</div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--danger">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Failed Logins</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.failed_logins }}</div>
+            <div class="text-muted fs-xs mt-1">
+                {% if stats.blocked_attempts_24h > 0 %}
+                    <span class="text-danger">{{ stats.blocked_attempts_24h }} blocked today</span>
+                {% else %}
+                    Auth Blocked
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-2 col-md-4 col-sm-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--blue">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Vault Storage</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M12 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h8z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ (stats.total_storage / (1024 * 1024)) | round(2) }} MB</div>
+            <div class="text-muted fs-xs mt-1">
+                {% if stats.users_with_quota > 0 %}
+                    {{ stats.users_with_quota }} users have quotas
+                {% else %}
+                    At-Rest Size
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Security & Storage Management Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="glass-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-warning bg-opacity-15 text-warning d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                        <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-light">Security Center</div>
+                        <div class="text-muted small">
+                            {% if stats.users_over_quota > 0 %}
+                                <span class="text-danger">{{ stats.users_over_quota }} users over quota</span>
+                            {% elif stats.users_near_quota > 0 %}
+                                <span class="text-warning">{{ stats.users_near_quota }} users near quota</span>
+                            {% else %}
+                                IP blocks, quotas & threat monitoring
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ url_for('admin.security_center') }}" class="btn btn-outline-warning btn-sm rounded-pill">
+                    Manage Security
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="glass-card p-3">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-3 bg-info bg-opacity-15 text-info d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
+                        <svg class="svg-icon" viewBox="0 0 16 16"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/></svg>
+                    </div>
+                    <div>
+                        <div class="fw-semibold text-light">Storage Management</div>
+                        <div class="text-muted small">User quotas & disk usage analytics</div>
+                    </div>
+                </div>
+                <a href="{{ url_for('admin.storage_management') }}" class="btn btn-outline-info btn-sm rounded-pill">
+                    Manage Storage
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Storage & System Security Health Widgets -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0 text-info d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M6 1a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V2a1 1 0 0 0-1-1H6z"/></svg> System Storage &amp; Integrity Health
+                </h6>
+                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill fs-xs">
+                    100% Validated
+                </span>
+            </div>
+            <div class="mb-3">
+                <div class="d-flex justify-content-between text-muted small mb-1">
+                    <span>Encrypted Disk Usage</span>
+                    <span class="font-mono text-light fw-bold">{{ (stats.total_storage / (1024 * 1024)) | round(2) }} MB / Unlimited</span>
+                </div>
+                <div class="progress bg-dark" style="height: 10px;">
+                    <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" role="progressbar" style="width: 28%;" aria-valuenow="28" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            <div class="row g-2 pt-2 text-muted small">
+                <div class="col-6">
+                    <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 d-flex align-items-center gap-2">
+                        <svg class="svg-icon text-success fs-5" viewBox="0 0 16 16"><path d="M5.338 1.59a61.44 61.44 0 0 0-2.837.856.481.481 0 0 0-.328.39c-.554 4.157.726 7.19 2.253 9.188a10.725 10.725 0 0 0 2.287 2.233c.346.244.652.42.893.533.12.057.218.095.293.118a.55.55 0 0 0 .101.025.615.615 0 0 0 .1-.025c.076-.023.174-.061.294-.118.24-.113.547-.29.893-.533a10.726 10.726 0 0 0 2.287-2.233c1.527-1.997 2.807-5.031 2.253-9.188a.48.48 0 0 0-.328-.39c-.651-.213-1.75-.56-2.837-.855C9.552 1.29 8.531 1.067 8 1.067c-.53 0-1.552.223-2.662.524z"/></svg>
+                        <div>
+                            <div class="text-light fw-semibold">AES-GCM Authenticated</div>
+                            <div class="fs-xs text-secondary">Zero Cipher Tampering</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="p-2 bg-dark bg-opacity-50 rounded-3 border border-secondary border-opacity-25 d-flex align-items-center gap-2">
+                        <svg class="svg-icon text-primary fs-5" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                        <div>
+                            <div class="text-light fw-semibold">{{ stats.total_downloads }} Downloads</div>
+                            <div class="fs-xs text-secondary">Successful Decryptions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0 text-danger d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-danger" viewBox="0 0 16 16"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg> Suspicious IP Addresses
+                </h6>
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 rounded-pill fs-xs">
+                    Failed Logins
+                </span>
+            </div>
+            {% if suspicious_ips %}
+            <div class="list-group list-group-flush">
+                {% for ip_addr, fail_count in suspicious_ips %}
+                <div class="list-group-item bg-transparent border-secondary border-opacity-25 px-0 py-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <svg class="svg-icon text-danger" style="width:16px;height:16px;" viewBox="0 0 16 16"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm7.5-6.923c-.67.04-1.365.147-2.078.323l.5 1.936a13.34 13.34 0 0 1 1.578-.244V1.077zM4.102 4.169a13.34 13.34 0 0 0-1.51.878l1.192 1.612a11.34 11.34 0 0 1 1.229-.708l-.911-1.782zm-.682 3.7a13.34 13.34 0 0 0-.599 1.892l1.934.5a11.35 11.35 0 0 1 .486-1.537l-1.82-.855z"/></svg>
+                            <span class="font-mono text-light">{{ ip_addr }}</span>
+                        </div>
+                        <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill">{{ fail_count }} attempts</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-4">
+                <svg class="svg-icon mb-2" style="width:32px;height:32px;opacity:0.3;" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                <div class="fw-medium">No failed login attempts</div>
+                <div class="small">All login attempts successful</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4">
+    <!-- Activity Trend Chart -->
+    <div class="col-lg-8">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-primary" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.75l-3.71 4.33a.5.5 0 0 1-.758-.65l4-4.667a.5.5 0 0 1 .74-.037l2.583 2.583 4.14-5.06a.5.5 0 0 1 .703-.066Z"/></svg>
+                    Activity Trend (Last 7 Days)
+                </h5>
+            </div>
+            <!-- Fixed height wrapper is required — Chart.js cannot compute its own
+                 height when the parent uses flexbox h-100 with no explicit size -->
+            <div style="position:relative; height:240px;">
+                <canvas id="activityTrendChart"></canvas>
+                <!-- No data message (hidden by default, shown by JS if needed) -->
+                <div id="noActivityData" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; width:100%;">
+                    <svg style="width:48px;height:48px;opacity:0.3;margin:0 auto 12px;" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    <div class="text-muted fw-medium">No activity data yet</div>
+                    <div class="text-muted small">User actions will appear here</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Rate Doughnut -->
+    <div class="col-lg-4">
+        <div class="glass-card p-4 h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h5 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-success" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                    Success vs Failed
+                </h5>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                <canvas id="successRateChart" style="max-width:220px;max-height:220px;"></canvas>
+                <div class="mt-3 w-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="d-flex align-items-center gap-2 text-muted small">
+                            <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(34,197,94,0.8);"></span> Success
+                        </span>
+                        <span class="font-mono text-success fw-bold">{{ chart_data.success_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="d-flex align-items-center gap-2 text-muted small">
+                            <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:rgba(239,68,68,0.8);"></span> Failed
+                        </span>
+                        <span class="font-mono text-danger fw-bold">{{ chart_data.fail_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Chart.js from CDN (no integrity check as it was causing issues) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.js" crossorigin="anonymous"></script>
+<script>
+console.log('Chart.js script tag executed');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired');
+    console.log('Chart available?', typeof Chart);
+    
+    // Verify Chart.js loaded
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js is not loaded!');
+        // Show fallback message
+        const activityCanvas = document.getElementById('activityTrendChart');
+        const successCanvas = document.getElementById('successRateChart');
+        if (activityCanvas) activityCanvas.parentElement.innerHTML = '<div class="text-center text-muted p-4"><p>Chart.js failed to load</p><p class="small">Check browser console for details</p></div>';
+        if (successCanvas) successCanvas.parentElement.innerHTML = '<div class="text-center text-muted p-4"><p>Chart.js failed to load</p></div>';
+        return;
+    }
+
+    console.log('Chart.js loaded successfully! Version:', Chart.version);
+
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.borderColor = 'rgba(148, 163, 184, 0.1)';
+
+    // ── Activity Trend Line Chart ──
+    const activityCtx = document.getElementById('activityTrendChart');
+    if (activityCtx) {
+        console.log('Activity chart canvas found');
+        const dates = {{ chart_data.daily_dates | tojson }};
+        const counts = {{ chart_data.daily_counts | tojson }};
+        
+        console.log('Chart data:', { dates, counts }); // Debug log
+        console.log('Total data points:', counts.reduce((a,b) => a+b, 0));
+        
+        // Check if there's any data
+        const hasData = counts.some(c => c > 0);
+        if (!hasData) {
+            console.warn('No activity data available for chart');
+            document.getElementById('noActivityData').style.display = 'block';
+            activityCtx.style.display = 'none';
+        } else {
+            console.log('Creating activity trend chart...');
+            const activityChart = new Chart(activityCtx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Events',
+                    data: counts,
+                    borderColor: 'rgb(59, 130, 246)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: 'rgb(59, 130, 246)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15,23,42,0.92)',
+                        padding: 12,
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(59,130,246,0.5)',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { precision: 0 },
+                        grid: { color: 'rgba(148,163,184,0.08)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+        
+        console.log('Activity chart created successfully');
+        }
+    } else {
+        console.error('Activity chart canvas not found');
+    }
+
+    // ── Success Rate Doughnut Chart ──
+    const successCtx = document.getElementById('successRateChart');
+    if (successCtx) {
+        console.log('Success chart canvas found');
+        const successCount = {{ chart_data.success_count }};
+        const failCount    = {{ chart_data.fail_count }};
+        const total = successCount + failCount;
+        
+        console.log('Success/Fail data:', { successCount, failCount, total });
+
+        const successChart = new Chart(successCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Success', 'Failed'],
+                datasets: [{
+                    data: total > 0 ? [successCount, failCount] : [1, 0],
+                    backgroundColor: [
+                        'rgba(34,197,94,0.8)',
+                        'rgba(239,68,68,0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(34,197,94)',
+                        'rgb(239,68,68)'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15,23,42,0.92)',
+                        padding: 12,
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#cbd5e1',
+                        borderColor: 'rgba(59,130,246,0.5)',
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(ctx) {
+                                const val = ctx.parsed;
+                                const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                return ' ' + ctx.label + ': ' + val + ' (' + pct + '%)';
+                            }
+                        }
+                    }
+                },
+                cutout: '68%'
+            }
+        });
+        
+        console.log('Success chart created successfully');
+    }
+});
+</script>
+{% endblock %}

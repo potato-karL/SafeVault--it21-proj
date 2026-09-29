@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+{% block title %}Backup & Recovery - SafeVault Admin{% endblock %}
+{% block page_title %}Backups & Recovery{% endblock %}
+
+{% block content %}
+<!-- Backups Header -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item">
+                    <a href="{{ url_for('admin.dashboard') }}" class="text-decoration-none text-warning d-inline-flex align-items-center gap-1">
+                        <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3.5A.5.5 0 0 1 7.5 8V4.5A.5.5 0 0 1 8 4z"/><path d="M3.732 1.2a1 1 0 0 1 1.856 0l.966 2.373a1 1 0 0 0 .748.565l2.553.256a1 1 0 0 1 .57 1.756l-1.92 1.701a1 1 0 0 0-.306.94l.564 2.507a1 1 0 0 1-1.488 1.08L5.474 11.2a1 1 0 0 0-.948 0l-2.143 1.178a1 1 0 0 1-1.488-1.08l.564-2.507a1 1 0 0 0-.306-.94L.733 6.15a1 1 0 0 1 .57-1.756l2.553-.256a1 1 0 0 0 .748-.565L3.732 1.2z"/></svg> Admin
+                    </a>
+                </li>
+                <li class="breadcrumb-item active text-muted" aria-current="page">Backups</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-3">
+            <svg class="svg-icon text-primary fs-2" viewBox="0 0 16 16"><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
+            <div>
+                <h3 class="fw-bold mb-0 text-light">System Backup &amp; Recovery</h3>
+                <p class="text-muted small mb-0">Automated snapshots, database dumps, and disaster recovery</p>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a href="{{ url_for('admin.backup_restore') }}" class="btn btn-outline-info btn-sm rounded-pill px-3">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+            Restore Interface
+        </a>
+        <button class="btn btn-primary btn-sm rounded-pill px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#createBackupModal">
+            <svg class="svg-icon me-1" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+            Create Backup
+        </button>
+    </div>
+</div>
+
+<!-- Backup Statistics Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--blue">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Total Backups</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ stats.total_backups }}</div>
+            <div class="text-muted fs-xs mt-1">Archived Snapshots</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--ok">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Success Rate</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l4.992-5.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ "%.1f"|format(stats.success_rate) }}%</div>
+            <div class="text-muted fs-xs mt-1">Operational Reliability</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--info">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Total Size</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M2.5 3A1.5 1.5 0 0 0 1 4.5v.793c.026.009.051.02.076.032L7.674 8.51c.206.1.446.1.652 0l6.598-3.185A.755.755 0 0 1 15 5.293V4.5A1.5 1.5 0 0 0 13.5 3h-11Z"/><path d="M15 6.954 8.978 9.86a2.25 2.25 0 0 1-1.956 0L1 6.954V11.5A1.5 1.5 0 0 0 2.5 13h11a1.5 1.5 0 0 0 1.5-1.5V6.954Z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">{{ "%.2f"|format(stats.total_size / (1024*1024)) }} <span class="fs-6 text-muted fw-normal">MB</span></div>
+            <div class="text-muted fs-xs mt-1">Compressed Footprint</div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="glass-card glass-card-hover p-3 d-flex flex-column justify-content-between dash-stat dash-stat--warn">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="text-muted small fw-semibold text-uppercase">Last Backup</span>
+                <span class="dash-stat__icon">
+                    <svg viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+                </span>
+            </div>
+            <div class="fw-bold font-mono text-light dash-stat__val">
+                {% if stats.latest_backup %}
+                    {{ stats.latest_backup.strftime('%m/%d %H:%M') }}
+                {% else %}
+                    Never
+                {% endif %}
+            </div>
+            <div class="text-muted fs-xs mt-1">Most Recent Execution</div>
+        </div>
+    </div>
+</div>
+
+<!-- Maintenance & Status Row -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="fw-bold text-light mb-3 d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-info" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/></svg>
+                    Status Distribution
+                </h6>
+                {% if status_counts and stats.total_backups > 0 %}
+                <div class="d-flex flex-column gap-2">
+                    {% for status, count in status_counts.items() %}
+                    <div class="d-flex justify-content-between align-items-center p-2 rounded bg-secondary bg-opacity-10 border border-secondary border-opacity-10">
+                        <span class="text-capitalize d-flex align-items-center gap-2">
+                            <span class="d-inline-block rounded-circle" style="width:8px; height:8px; background-color: {% if status == 'completed' %}#22c55e{% elif status == 'failed' %}#ef4444{% else %}#eab308{% endif %};"></span>
+                            <span class="small text-light">{{ status }}</span>
+                        </span>
+                        <span class="badge bg-dark border border-secondary text-light font-mono">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-3 my-auto">
+                    <svg class="svg-icon mb-2 text-info opacity-75" style="width:32px;height:32px;" viewBox="0 0 16 16"><path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/></svg>
+                    <div class="small fw-semibold text-light">No backup history yet</div>
+                    <div class="fs-xs text-muted">Create a backup snapshot to view real-time distribution metrics</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6">
+        <div class="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <h6 class="fw-bold text-light mb-3 d-flex align-items-center gap-2">
+                    <svg class="svg-icon text-warning" viewBox="0 0 16 16"><path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492z"/></svg>
+                    Maintenance &amp; Actions
+                </h6>
+                <div class="d-flex flex-column gap-2">
+                    <button class="btn btn-outline-danger btn-sm rounded-pill d-flex align-items-center justify-content-between px-3 py-2 w-100" data-bs-toggle="modal" data-bs-target="#cleanupModal">
+                        <span class="d-flex align-items-center gap-2">
+                            <svg class="svg-icon text-danger" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+                            Cleanup Old Backups
+                        </span>
+                        <span class="text-muted fs-xs">Prune expired archives</span>
+                    </button>
+                    <a href="{{ url_for('admin.backup_restore') }}" class="btn btn-outline-info btn-sm rounded-pill d-flex align-items-center justify-content-between px-3 py-2 w-100">
+                        <span class="d-flex align-items-center gap-2">
+                            <svg class="svg-icon text-info" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/></svg>
+                            Restoration Portal
+                        </span>
+                        <span class="text-muted fs-xs">Inspect &amp; verify</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Backups Table -->
+<div class="glass-card p-4">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-bold text-light mb-0">Recent Backups</h5>
+        <span class="text-muted small">Showing {{ recent_backups.items|length }} of {{ recent_backups.total }} archives</span>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle">
+            <thead>
+                <tr class="text-muted small text-uppercase border-bottom border-secondary border-opacity-25">
+                    <th>ID</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Started</th>
+                    <th>Duration</th>
+                    <th>Size</th>
+                    <th>Items</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for backup in recent_backups.items %}
+                <tr>
+                    <td class="font-mono text-muted">#{{ backup.id }}</td>
+                    <td>
+                        <span class="badge bg-info bg-opacity-25 text-info border border-info-subtle rounded-pill px-2 py-1 text-capitalize">
+                            {{ backup.backup_type.replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if backup.status == 'completed' %}
+                            <span class="badge bg-success bg-opacity-25 text-success border border-success-subtle rounded-pill px-2 py-1">Completed</span>
+                        {% elif backup.status == 'failed' %}
+                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger-subtle rounded-pill px-2 py-1">Failed</span>
+                        {% else %}
+                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning-subtle rounded-pill px-2 py-1">{{ backup.status.title() }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted font-mono small">{{ backup.started_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td class="text-muted font-mono small">
+                        {% if backup.duration %}
+                            {{ backup.duration }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="font-mono text-light small">
+                        {% if backup.file_size %}
+                            {{ "%.2f"|format(backup.file_size / (1024*1024)) }} MB
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td class="font-mono text-muted small">{{ backup.items_count or 0 }}</td>
+                    <td class="text-end text-nowrap">
+                        <div class="d-inline-flex align-items-center gap-2">
+                            {% if backup.status == 'completed' %}
+                            <a href="{{ url_for('admin.download_backup', backup_id=backup.id) }}" 
+                               class="btn btn-outline-info btn-icon" title="Download Archive">
+                                <svg class="svg-icon" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+                            </a>
+                            {% endif %}
+                            
+                            <form method="POST" action="{{ url_for('admin.delete_backup', backup_id=backup.id) }}" 
+                                  class="d-inline" onsubmit="return confirm('Delete this backup? This action cannot be undone.')">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-icon" title="Delete Archive">
+                                    <svg class="svg-icon" viewBox="0 0 16 16"><path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        No backups created yet. Click "Create Backup" to generate your first system snapshot.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Backup Modal -->
+<div class="modal fade" id="createBackupModal" tabindex="-1" aria-labelledby="createBackupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary border-opacity-25 shadow-lg">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold text-light" id="createBackupModalLabel">Create System Backup</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.create_backup') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="backup_type" class="form-label text-light small fw-semibold">Backup Type</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="backup_type" name="backup_type" required>
+                            <option value="full">Full Backup (Database + Encrypted Files + System Config)</option>
+                            <option value="database_only">Database Only (Fast &amp; Compact)</option>
+                            <option value="incremental">Incremental (Changes since last backup)</option>
+                        </select>
+                        <div class="form-text text-muted fs-xs">Full backups capture everything in SafeVault storage.</div>
+                    </div>
+                    
+                    <div class="mb-3" id="includeFilesOption">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="include_files" name="include_files" checked>
+                            <label class="form-check-label text-light small" for="include_files">
+                                Include User Vault Payloads
+                            </label>
+                        </div>
+                        <div class="form-text text-muted fs-xs">Keep checked to include AES-encrypted user files in the backup.</div>
+                    </div>
+                    
+                    <div class="mb-3 d-none" id="sinceDateOption">
+                        <label for="since_date" class="form-label text-light small fw-semibold">Backup Changes Since</label>
+                        <input type="date" class="form-control bg-dark text-light border-secondary" id="since_date" name="since_date">
+                        <div class="form-text text-muted fs-xs">Leave blank to use the timestamp of the last successful backup.</div>
+                    </div>
+                    
+                    <div class="alert alert-info bg-info bg-opacity-10 border border-info border-opacity-25 text-info rounded-3 p-3 mb-0">
+                        <div class="fw-bold mb-1 d-flex align-items-center gap-1">
+                            <svg class="svg-icon" viewBox="0 0 16 16"><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
+                            Backup Architecture Notes
+                        </div>
+                        <ul class="mb-0 ps-3 small">
+                            <li>All sensitive ciphertexts remain encrypted in zero-knowledge format.</li>
+                            <li>Backups are verified with SHA-256 integrity checksums upon completion.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill btn-sm px-4">Create Backup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Cleanup Modal -->
+<div class="modal fade" id="cleanupModal" tabindex="-1" aria-labelledby="cleanupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-secondary border-opacity-25 shadow-lg">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title fw-bold text-light" id="cleanupModalLabel">Cleanup Old Backups</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.cleanup_old_backups') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="retention_days" class="form-label text-light small fw-semibold">Retention Period (Days)</label>
+                        <input type="number" class="form-control bg-dark text-light border-secondary font-mono" id="retention_days" name="retention_days" 
+                               value="30" min="1" max="365" required>
+                        <div class="form-text text-muted fs-xs">Backups older than this number of days will be permanently purged.</div>
+                    </div>
+                    
+                    <div class="alert alert-warning bg-warning bg-opacity-10 border border-warning border-opacity-25 text-warning rounded-3 p-3 mb-0 small">
+                        <strong>Warning:</strong> This operation deletes old archive files from disk permanently.
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger rounded-pill btn-sm px-4">Execute Cleanup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const backupTypeSelect = document.getElementById('backup_type');
+    const includeFilesOption = document.getElementById('includeFilesOption');
+    const sinceDateOption = document.getElementById('sinceDateOption');
+    
+    if (backupTypeSelect) {
+        backupTypeSelect.addEventListener('change', function() {
+            if (this.value === 'database_only') {
+                includeFilesOption.classList.add('d-none');
+                sinceDateOption.classList.add('d-none');
+            } else if (this.value === 'incremental') {
+                includeFilesOption.classList.remove('d-none');
+                sinceDateOption.classList.remove('d-none');
+            } else {
+                includeFilesOption.classList.remove('d-none');
+                sinceDateOption.classList.add('d-none');
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
