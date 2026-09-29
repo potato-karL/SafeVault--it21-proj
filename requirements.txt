@@ -9,9 +9,8 @@ python-dotenv==1.0.1
 email-validator==2.2.0
 Flask-Talisman==1.1.0
 Flask-Limiter==3.8.0
-# python-magic needs the system libmagic library on Linux/Mac (e.g. `apt install libmagic1`).
-# On Windows, install python-magic-bin instead (bundles libmagic, no separate install needed):
-#   pip uninstall python-magic && pip install python-magic-bin==0.4.14
+# Force rebuild by updating this comment
+# Railway caching fix for psycopg2-binary 2.9.10 Python 3.13
 python-magic==0.4.27
 pyotp==2.9.0
 qrcode==7.4.2
