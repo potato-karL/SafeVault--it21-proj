@@ -30,6 +30,8 @@ AUDIT_ACTIONS = {
     'admin_session_terminate', 'admin_bulk_operation', 'admin_system_config',
     'admin_backup_create', 'admin_backup_delete', 'admin_backup_cleanup', 'admin_backup_restore',
     'admin_export_create', 'admin_export_delete', 'admin_export_cleanup', 'admin_export_download',
+    'admin_user_search_export', 'admin_search_saved', 'admin_session_data_export',
+    'admin_system_health_export', 'admin_audit_trail_export',
 
     # Security events
     'security_login_failed', 'security_account_locked', 'security_ip_blocked',

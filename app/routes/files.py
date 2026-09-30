@@ -17,6 +17,7 @@ from app.integrity import verify_file_at_rest
 from app.utils.security import allowed_file, content_matches_extension, generate_stored_filename, upload_path_for
 from app.utils.decorators import storage_quota_check
 from app.utils import decrypt_cache
+from app.utils.audit_logger import AuditLogger
 
 files_bp = Blueprint("files", __name__)
 
@@ -91,6 +92,10 @@ def upload():
                 user_id=current_user.id, action="upload", status="fail",
                 detail=f"disallowed file type: {original_filename}", ip_address=request.remote_addr,
             )
+            AuditLogger.log_file_operation(
+                'file_upload', filename=original_filename, status='failed',
+                description=f"Upload rejected - disallowed file type: {original_filename}"
+            )
             allowed_list = ", ".join(sorted(current_app.config["ALLOWED_EXTENSIONS"])).upper()
             flash(f"File type not permitted. SafeVault only accepts: {allowed_list}", "danger")
             return render_template("upload.html", form=form)
@@ -100,6 +105,10 @@ def upload():
             ActivityLog.record(
                 user_id=current_user.id, action="upload", status="fail",
                 detail="empty file", ip_address=request.remote_addr,
+            )
+            AuditLogger.log_file_operation(
+                'file_upload', filename=original_filename, status='failed',
+                description="Upload rejected - empty file"
             )
             flash("That file appears to be empty.", "danger")
             return render_template("upload.html", form=form)
@@ -114,6 +123,10 @@ def upload():
                 detail=f"content/extension mismatch: {original_filename}",
                 ip_address=request.remote_addr,
             )
+            AuditLogger.log_file_operation(
+                'file_upload', filename=original_filename, status='failed',
+                description=f"Upload rejected - content/extension mismatch: {original_filename}"
+            )
             flash("That file's content doesn't match its extension.", "danger")
             return render_template("upload.html", form=form)
 
@@ -125,6 +138,10 @@ def upload():
             ActivityLog.record(
                 user_id=current_user.id, action="encrypt", status="fail",
                 detail=original_filename, ip_address=request.remote_addr,
+            )
+            AuditLogger.log_file_operation(
+                'file_encrypt', filename=original_filename, status='failed',
+                description=f"Encryption failed for file: {original_filename}"
             )
             flash("Something went wrong while encrypting that file. Please try again.", "danger")
             return render_template("upload.html", form=form)
@@ -158,6 +175,14 @@ def upload():
             user_id=current_user.id, action="encrypt", status="success",
             detail=original_filename, ip_address=request.remote_addr,
         )
+        AuditLogger.log_file_operation(
+            'file_upload', file_id=file_row.id, filename=original_filename, status='success',
+            description=f"File uploaded and encrypted successfully: {original_filename}"
+        )
+        AuditLogger.log_file_operation(
+            'file_encrypt', file_id=file_row.id, filename=original_filename, status='success',
+            description=f"File encrypted with AES-256-GCM: {original_filename}"
+        )
 
         flash(f'"{original_filename}" was encrypted and uploaded.', "success")
         return redirect(url_for("files.dashboard"))
@@ -180,6 +205,10 @@ def decrypt(file_id):
                 detail=f"missing file on disk: {file_row.original_filename}",
                 ip_address=request.remote_addr,
             )
+            AuditLogger.log_file_operation(
+                'file_decrypt', file_id=file_row.id, filename=file_row.original_filename, status='failed',
+                description=f"Decrypt failed - file missing on disk: {file_row.original_filename}"
+            )
             flash("This file's data could not be found on the server.", "danger")
             return redirect(url_for("files.dashboard"))
 
@@ -194,6 +223,11 @@ def decrypt(file_id):
                 user_id=current_user.id, action="decrypt", status="fail",
                 detail=f"at-rest integrity check failed: {file_row.original_filename}",
                 ip_address=request.remote_addr,
+            )
+            AuditLogger.log_file_operation(
+                'file_decrypt', file_id=file_row.id, filename=file_row.original_filename, status='failed',
+                description=f"Decrypt blocked - integrity check failed: {file_row.original_filename}",
+                is_suspicious=True
             )
             flash("This file failed an integrity check and cannot be decrypted safely.", "danger")
             return redirect(url_for("files.dashboard"))
@@ -214,12 +248,20 @@ def decrypt(file_id):
                 user_id=current_user.id, action="decrypt", status="fail",
                 detail=file_row.original_filename, ip_address=request.remote_addr,
             )
+            AuditLogger.log_file_operation(
+                'file_decrypt', file_id=file_row.id, filename=file_row.original_filename, status='failed',
+                description=f"Decrypt failed - wrong password or verification error: {file_row.original_filename}"
+            )
             flash("Incorrect password or the file could not be verified.", "danger")
             return render_template("decrypt.html", form=form, file=file_row)
 
         ActivityLog.record(
             user_id=current_user.id, action="decrypt", status="success",
             detail=file_row.original_filename, ip_address=request.remote_addr,
+        )
+        AuditLogger.log_file_operation(
+            'file_decrypt', file_id=file_row.id, filename=file_row.original_filename, status='success',
+            description=f"File decrypted successfully: {file_row.original_filename}"
         )
 
         token = decrypt_cache.put(
@@ -246,6 +288,10 @@ def download(file_id):
             detail=f"expired or reused token: {file_row.original_filename}",
             ip_address=request.remote_addr,
         )
+        AuditLogger.log_file_operation(
+            'file_download', file_id=file_row.id, filename=file_row.original_filename, status='failed',
+            description=f"Download failed - expired or reused token: {file_row.original_filename}"
+        )
         flash("That download link has expired or already been used. Please decrypt again.", "warning")
         return redirect(url_for("files.decrypt", file_id=file_row.id))
 
@@ -254,6 +300,10 @@ def download(file_id):
     ActivityLog.record(
         user_id=current_user.id, action="download", status="success",
         detail=filename, ip_address=request.remote_addr,
+    )
+    AuditLogger.log_file_operation(
+        'file_download', file_id=file_row.id, filename=filename, status='success',
+        description=f"File downloaded successfully: {filename}"
     )
 
     return send_file(
@@ -285,6 +335,10 @@ def delete(file_id):
     ActivityLog.record(
         user_id=current_user.id, action="delete", status="success",
         detail=filename, ip_address=request.remote_addr,
+    )
+    AuditLogger.log_file_operation(
+        'file_delete', filename=filename, status='success',
+        description=f"File permanently deleted: {filename}"
     )
 
     flash(f'"{filename}" was deleted.', "info")
@@ -319,6 +373,10 @@ def preview(file_id):
             detail=f"missing file on disk: {file_row.original_filename}",
             ip_address=request.remote_addr,
         )
+        AuditLogger.log_file_operation(
+            'file_preview', file_id=file_row.id, filename=file_row.original_filename, status='failed',
+            description=f"Preview failed - file missing on disk: {file_row.original_filename}"
+        )
         flash("This file's ciphertext payload could not be found on disk.", "danger")
         return redirect(url_for("files.dashboard"))
 
@@ -333,6 +391,10 @@ def preview(file_id):
     ActivityLog.record(
         user_id=current_user.id, action="preview", status="success",
         detail=file_row.original_filename, ip_address=request.remote_addr,
+    )
+    AuditLogger.log_file_operation(
+        'file_preview', file_id=file_row.id, filename=file_row.original_filename, status='success',
+        description=f"Encrypted file previewed (hex dump): {file_row.original_filename}"
     )
 
     return render_template(

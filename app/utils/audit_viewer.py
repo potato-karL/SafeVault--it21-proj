@@ -386,9 +386,12 @@ class AuditViewer:
     def get_quick_filters(self):
         """Get quick filter options for common searches"""
         try:
-            # Get available values for filters
-            categories = db.session.query(AuditLog.category).distinct().all()
-            categories = [c[0] for c in categories if c[0]]
+            # Use a hardcoded list so all categories always appear in the
+            # dropdown even before any events of that type have been logged.
+            categories = [
+                'authentication', 'file', 'administration',
+                'security', 'system', 'data', 'settings'
+            ]
             
             # Get all actions (not limited) and organize by category
             actions = db.session.query(AuditLog.action).distinct().all()

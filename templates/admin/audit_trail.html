@@ -79,34 +79,34 @@
 </div>
 
 <!-- Filter Bar (Category & Status only) -->
-<div class="glass-card p-3 mb-4">
+<div class="glass-card p-4 mb-4">
     <div class="row g-3 align-items-end">
-        <div class="col-lg-5 col-md-5 col-sm-6">
+        <div class="col-xl-5 col-lg-5 col-md-6 col-sm-12">
             <label class="form-label mb-1 text-muted small fw-semibold text-uppercase">Category</label>
-            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCategory" style="height: 33px;">
+            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterCategory" style="height: 36px; min-width: 0;">
                 <option value="">All Categories</option>
                 {% for cat in quick_filters.categories %}
                 <option value="{{ cat }}">{{ cat.title() }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-lg-4 col-md-4 col-sm-6">
+        <div class="col-xl-4 col-lg-4 col-md-6 col-sm-12">
             <label class="form-label mb-1 text-muted small fw-semibold text-uppercase">Status</label>
-            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterStatus" style="height: 33px;">
+            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="filterStatus" style="height: 36px; min-width: 0;">
                 <option value="">All Statuses</option>
                 {% for st in quick_filters.statuses %}
                 <option value="{{ st }}">{{ st.title() }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-lg-3 col-md-3 col-sm-12">
+        <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12">
             <label class="form-label mb-1 text-muted small fw-semibold text-uppercase d-none d-sm-block" style="visibility: hidden;">Actions</label>
             <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-primary btn-sm flex-grow-1 d-inline-flex align-items-center justify-content-center gap-2" id="applyFilterBtn" onclick="applyFilters()" title="Apply Filters" style="height: 33px;">
+                <button class="btn btn-primary btn-sm flex-grow-1 d-inline-flex align-items-center justify-content-center gap-2" id="applyFilterBtn" onclick="applyFilters()" title="Apply Filters" style="height: 36px;">
                     <svg class="svg-icon" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.099zm-5.242 1.656a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11z"/></svg>
                     <span>Apply Filter</span>
                 </button>
-                <button class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center gap-1 px-3" onclick="clearFilters()" title="Clear Filters" style="height: 33px;">
+                <button class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center gap-1 px-3" onclick="clearFilters()" title="Clear Filters" style="height: 36px;">
                     <svg class="svg-icon" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854z"/></svg>
                     <span>Clear</span>
                 </button>

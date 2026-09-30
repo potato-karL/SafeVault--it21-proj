@@ -293,6 +293,11 @@ def verify_2fa():
                 detail=f"2FA verified, new IP: {current_ip}" if is_new_ip else "2FA verified",
                 ip_address=current_ip,
             )
+            AuditLogger.log_auth_success(
+                'auth_2fa_verify',
+                description=f"Successful TOTP login for user: {user.username}",
+                target_type='user', target_id=user.id, target_name=user.username
+            )
             
             # Alert user about new IP
             if is_new_ip:
@@ -316,6 +321,12 @@ def verify_2fa():
         ActivityLog.record(
             user_id=user.id, action="login", status="fail",
             detail="invalid 2FA code", ip_address=request.remote_addr,
+        )
+        AuditLogger.log_auth_failure(
+            'auth_2fa_verify',
+            description=f"Failed TOTP verification for user: {user.username}",
+            target_type='user', target_id=user.id, target_name=user.username,
+            is_suspicious=True
         )
         
         # Check for IP auto-ban after failed 2FA
@@ -380,6 +391,12 @@ def verify_backup_code():
             detail=f"logged in with backup code, new IP: {current_ip}" if is_new_ip else "logged in with single-use backup code",
             ip_address=current_ip,
         )
+        AuditLogger.log_auth_success(
+            'auth_backup_code_use',
+            description=f"User logged in using single-use backup recovery code: {user.username}",
+            target_type='user', target_id=user.id, target_name=user.username,
+            level='warning'
+        )
         
         # Alert user about new IP
         if is_new_ip:
@@ -397,6 +414,12 @@ def verify_backup_code():
     ActivityLog.record(
         user_id=user.id, action="backup_code", status="fail",
         detail="invalid/used backup code", ip_address=request.remote_addr,
+    )
+    AuditLogger.log_auth_failure(
+        'auth_backup_code_use',
+        description=f"Failed backup code attempt for user: {user.username}",
+        target_type='user', target_id=user.id, target_name=user.username,
+        is_suspicious=True
     )
     
     # Check for IP auto-ban after failed backup code
@@ -439,6 +462,11 @@ def forgot_password():
                 user_id=user.id, action="reset_password", status="success",
                 detail="password reset requested", ip_address=request.remote_addr,
             )
+            AuditLogger.log_auth_success(
+                'auth_password_reset_request',
+                description=f"Password reset link generated for user: {user.username}",
+                target_type='user', target_id=user.id, target_name=user.username
+            )
             # In local/demo environments, display the reset link in flash notification:
             flash(f"Password reset link generated! Visit: {reset_url}", "info")
             return redirect(url_for("auth.login"))
@@ -447,6 +475,10 @@ def forgot_password():
         ActivityLog.record(
             user_id=None, action="reset_password", status="fail",
             detail=f"unknown/inactive email: {email}", ip_address=request.remote_addr,
+        )
+        AuditLogger.log_auth_failure(
+            'auth_password_reset_request',
+            description=f"Password reset requested for unknown/inactive email"
         )
         flash("If that email address is registered, a password reset link was sent.", "info")
         return redirect(url_for("auth.login"))
@@ -479,6 +511,12 @@ def reset_password(token):
         ActivityLog.record(
             user_id=user.id, action="reset_password", status="success",
             detail="password successfully reset", ip_address=request.remote_addr,
+        )
+        AuditLogger.log_auth_success(
+            'auth_password_reset_complete',
+            description=f"Password successfully reset for user: {user.username}",
+            target_type='user', target_id=user.id, target_name=user.username,
+            level='warning'
         )
         flash("Your password has been updated. You can now log in.", "success")
         return redirect(url_for("auth.login"))
